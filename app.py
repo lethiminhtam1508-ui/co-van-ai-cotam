@@ -2,7 +2,6 @@ import streamlit as st
 import os
 import time
 from google import genai
-from google.genai import types
 
 # Cấu hình giao diện Streamlit
 st.set_page_config(
@@ -10,6 +9,70 @@ st.set_page_config(
     page_icon="🧭",
     layout="wide"
 )
+
+# TÙY BIẾN GIAO DIỆN (CSS)
+st.markdown("""
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Merriweather:wght@700;900&display=swap');
+
+    html, body, [class*="css"] {
+        font-family: 'Be Vietnam Pro', sans-serif;
+    }
+
+    .header-box {
+        background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+        padding: 20px 24px;
+        border-radius: 14px;
+        border-left: 6px solid #1e40af;
+        box-shadow: 0 4px 12px rgba(30, 64, 175, 0.05);
+        margin-bottom: 20px;
+    }
+
+    .main-title {
+        font-family: 'Merriweather', serif;
+        font-size: 26px;
+        font-weight: 900;
+        background: linear-gradient(90deg, #1e3a8a, #2563eb, #0d9488);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 0;
+        padding-bottom: 4px;
+    }
+
+    .sub-title {
+        color: #475569;
+        font-size: 14px;
+        font-weight: 500;
+        margin-top: 4px;
+    }
+
+    .section-title {
+        font-family: 'Be Vietnam Pro', sans-serif;
+        color: #1e293b;
+        font-size: 19px;
+        font-weight: 700;
+        margin-top: 10px;
+        margin-bottom: 6px;
+    }
+
+    div.stButton > button {
+        background-color: #ffffff;
+        color: #1e40af;
+        border: 1px solid #bfdbfe;
+        border-radius: 18px;
+        padding: 6px 14px;
+        font-size: 13.5px;
+        font-weight: 500;
+        transition: all 0.2s ease-in-out;
+    }
+
+    div.stButton > button:hover {
+        background-color: #eff6ff;
+        border-color: #3b82f6;
+        color: #1d4ed8;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # 1. Khởi tạo kết nối Gemini API
 api_key = st.secrets.get("GEMINI_API_KEY", os.environ.get("GEMINI_API_KEY", ""))
@@ -21,8 +84,12 @@ else:
     st.warning("⚠️ Chưa tìm thấy GEMINI_API_KEY trong Advanced settings -> Secrets trên Streamlit Cloud.")
 
 # 2. Tiêu đề ứng dụng
-st.title("🧭 Trợ Lý Cố Vấn Hướng Nghiệp AI - Cô Tâm")
-st.caption("Trường THPT Phan Đăng Lưu | Đồng hành khai vấn & kiến tạo tương lai cùng học sinh")
+st.markdown("""
+<div class="header-box">
+    <h1 class="main-title">🧭 Trợ Lý Cố Vấn Hướng Nghiệp AI - Cô Tâm</h1>
+    <div class="sub-title">Trường THPT Phan Đăng Lưu • Đồng hành khai vấn & kiến tạo tương lai cùng học sinh</div>
+</div>
+""", unsafe_allow_html=True)
 
 # Khởi tạo lịch sử trò chuyện
 if "messages" not in st.session_state:
@@ -46,20 +113,20 @@ goi_y = ""
 # TAB 1: KHUNG CỐ VẤN KHAI VẤN (AI CHATBOT)
 # ==========================================
 with tab1:
-    st.subheader("Trò chuyện trực tiếp cùng Cô Tâm")
-    st.write("Em đang băn khoăn về chọn khối thi, chọn ngành, mâu thuẫn giữa sở thích và năng lực, hay áp lực từ gia đình? Hãy chia sẻ với cô nhé!")
+    st.markdown('<div class="section-title">💡 Trò chuyện trực tiếp cùng Cô Tâm</div>', unsafe_allow_html=True)
+    st.markdown("*(Em đang băn khoăn về chọn khối thi, chọn ngành, mâu thuẫn giữa sở thích và năng lực, hay áp lực từ gia đình? Hãy chia sẻ cùng cô nhé!)*")
 
     # Gợi ý tình huống nhanh
     st.markdown("**Gợi ý tình huống nhanh:**")
     col_a, col_b, col_c = st.columns(3)
-    if col_a.button("Em muốn học IT nhưng tính hướng nội, sợ giao tiếp?"):
+    if col_a.button("IT & Tố chất Hướng nội (S)"):
         goi_y = "Em muốn học ngành Công nghệ Thông tin nhưng tính em rất hướng nội và ngại giao tiếp, kết quả trắc nghiệm ra nhóm Trầm tĩnh (S). Liệu em có theo được không cô?"
-    if col_b.button("Bố mẹ muốn em thi Sư phạm, em lại thích Kinh doanh?"):
+    if col_b.button("Sư phạm hay Kinh doanh?"):
         goi_y = "Gia đình muốn em thi Sư phạm cho ổn định, nhưng em lại thích kinh doanh khởi nghiệp. Em đang rất khó xử không biết chọn thế nào ạ?"
-    if col_c.button("Em học lực khá, chưa biết mình thích ngành gì?"):
+    if col_c.button("Học lực khá, chưa rõ đam mê?"):
         goi_y = "Em đang học lớp 11, học lực ở mức khá nhưng chưa thực sự thấy mình nổi trội môn nào hay đam mê ngành gì cụ thể. Cô giúp em với ạ!"
 
-    # Hiển thị toàn bộ lịch sử tin nhắn
+    # Hiển thị lịch sử tin nhắn
     for msg in st.session_state.messages:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
@@ -68,7 +135,7 @@ with tab1:
 # TAB 2: TRẮC NGHIỆM TỐ CHẤT (DISC & HOLLAND)
 # ==========================================
 with tab2:
-    st.subheader("Khám phá Tố chất & Phong cách Làm việc")
+    st.markdown('<div class="section-title">🧩 Khám phá Tố chất & Phong cách Làm việc</div>', unsafe_allow_html=True)
     st.write("Trả lời 4 câu hỏi trắc nghiệm tình huống dưới đây để nhận diện bức tranh tổng quan về bản thân:")
 
     with st.form("quiz_form"):
@@ -129,7 +196,7 @@ with tab2:
 # TAB 3: SỔ TAY HƯỚNG NGHIỆP & LỘ TRÌNH 30 NGÀY
 # ==========================================
 with tab3:
-    st.subheader("Triết Lý Khai Vấn & Công Thức Thành Công")
+    st.markdown('<div class="section-title">📖 Triết Lý Khai Vấn & Công Thức Thành Công</div>', unsafe_allow_html=True)
 
     col_l, col_r = st.columns(2)
 
@@ -153,63 +220,70 @@ with tab3:
         """)
 
 # ==========================================
-# Ô NHẬP LIỆU GHIM DƯỚI ĐÁY TRÌNH DUYỆT
+# XỬ LÝ CHAT
 # ==========================================
 user_input = st.chat_input("Nhập băn khoăn của em về chọn ngành, chọn khối thi...")
-prompt_to_send = user_input or (goi_y if goi_y and ("last_quick" not in st.session_state or st.session_state.last_quick != goi_y) else None)
+prompt_to_send = user_input or (goi_y if (goi_y and ("last_quick" not in st.session_state or st.session_state.last_quick != goi_y)) else None)
 
 if prompt_to_send:
     if goi_y:
         st.session_state.last_quick = goi_y
 
     st.session_state.messages.append({"role": "user", "content": prompt_to_send})
+    
+    with tab1:
+        with st.chat_message("user"):
+            st.markdown(prompt_to_send)
 
-    if not client:
-        st.error("Chưa kết nối được với AI (Thiếu API Key). Vui lòng cấu hình Secrets trên Streamlit Cloud.")
-    else:
-        system_prompt = """
-        Bạn là cô giáo Lê Thị Minh Tâm, phụ trách Hoạt động Trải nghiệm, Hướng nghiệp (HĐTN, HN) tại Trường THPT Phan Đăng Lưu, Huế.
-        Bạn là người CÔ ĐỒNG HÀNH & CHUYÊN GIA KHAI VẤN (COACHING) CHỈ CHUYÊN SÂU VỀ HƯỚNG NGHIỆP VÀ TÂM LÝ LỨA TUỔI HỌC ĐƯỜNG.
+        with st.chat_message("assistant"):
+            if not client:
+                st.error("Chưa kết nối được với AI (Thiếu API Key). Vui lòng cấu hình Secrets trên Streamlit Cloud.")
+            else:
+                with st.spinner("Cô Tâm đang suy ngẫm câu trả lời cho em..."):
+                    system_prompt = """
+                    Bạn là cô giáo Lê Thị Minh Tâm, phụ trách Hoạt động Trải nghiệm, Hướng nghiệp (HĐTN, HN) tại Trường THPT Phan Đăng Lưu, Huế.
+                    Bạn là người CÔ ĐỒNG HÀNH & CHUYÊN GIA KHAI VẤN (COACHING) CHỈ CHUYÊN SÂU VỀ HƯỚNG NGHIỆP VÀ TÂM LÝ LỨA TUỔI HỌC ĐƯỜNG.
 
-        GIỚI HẠN PHẠM VI NGHIÊM NGẶT (SCOPE BOUNDARY):
-        - BẠN CHỈ TƯ VẤN: Chọn ngành, chọn khối thi, thấu hiểu tính cách/sở thích (DISC, Holland), giải tỏa áp lực học tập/gia đình, phương pháp học tập chung và kế hoạch hành động 30 ngày (E + R = O).
-        - TUYỆT ĐỐI TỪ CHỐI: Giải bài tập cụ thể của các môn học (như giải bài tập Toán, Lý, Hóa, Văn, tích vô hướng, đạo hàm...), viết văn hộ, giải bài tập về nhà, hoặc các chủ đề phiếm ngoài học đường.
-        - KHI HỌC SINH HỎI NGOÀI PHẠM VI (ví dụ hỏi giải bài tập Toán): Hãy mỉm cười từ chối một cách duyên dáng, chuẩn mực sư phạm. Nhắc em rằng đây là không gian dành riêng cho Hướng nghiệp và Khám phá bản thân; khuyên em nên hỏi thầy cô bộ môn trên lớp hoặc tự tư duy làm bài, sau đó khéo léo hỏi lại xem em có cần cô hỗ trợ gì về mục tiêu nghề nghiệp hay phương pháp phân bổ thời gian học môn đó không.
+                    GIỚI HẠN PHẠM VI NGHIÊM NGẶT (SCOPE BOUNDARY):
+                    - BẠN CHỈ TƯ VẤN: Chọn ngành, chọn khối thi, thấu hiểu tính cách/sở thích (DISC, Holland), giải tỏa áp lực học tập/gia đình, phương pháp học tập chung và kế hoạch hành động 30 ngày (E + R = O).
+                    - TUYỆT ĐỐI TỪ CHỐI: Giải bài tập cụ thể của các môn học (như giải bài tập Toán, Lý, Hóa, Văn, tích vô hướng, đạo hàm...), viết văn hộ, giải bài tập về nhà, hoặc các chủ đề phiếm ngoài học đường.
+                    - KHI HỌC SINH HỎI NGOÀI PHẠM VI: Hãy mỉm cười từ chối một cách duyên dáng, chuẩn mực sư phạm. Nhắc em rằng đây là không gian dành riêng cho Hướng nghiệp và Khám phá bản thân; khuyên em nên trao đổi với thầy cô bộ môn, sau đó khéo léo hỏi lại xem em có cần cô hỗ trợ gì về mục tiêu nghề nghiệp hay quản lý thời gian không.
 
-        NGUYÊN TẮC KHAI VẤN (KHI ĐÚNG PHẠM VI HƯỚNG NGHIỆP):
-        1. Tuyệt đối không liệt kê tiêu đề "Bước 1, Bước 2, Bước 3, Bước 4".
-        2. Độ dài: Ngắn gọn, ấm áp (khoảng 2-3 đoạn ngắn, dưới 200 từ).
-        3. Thấu cảm cảm xúc -> Đưa ra góc nhìn sâu sắc -> Luôn kết thúc bằng 1 đến 2 câu hỏi gợi mở để học sinh tự soi chiếu và trả lời.
-        4. Xưng hô: "cô" - "em". Ngôn từ mực thước sư phạm xứ Huế, tình cảm, tinh tế.
-        """
+                    NGUYÊN TẮC KHAI VẤN (KHI ĐÚNG PHẠM VI HƯỚNG NGHIỆP):
+                    1. Tuyệt đối không liệt kê tiêu đề "Bước 1, Bước 2, Bước 3, Bước 4".
+                    2. Độ dài: Ngắn gọn, ấm áp (khoảng 2-3 đoạn ngắn, dưới 200 từ).
+                    3. Thấu cảm cảm xúc -> Đưa ra góc nhìn sâu sắc -> Luôn kết thúc bằng 1 đến 2 câu hỏi gợi mở để học sinh tự soi chiếu và trả lời.
+                    4. Xưng hô: "cô" - "em". Ngôn từ mực thước sư phạm xứ Huế, tình cảm, tinh tế.
+                    """
 
-        conversation_history = "\n".join([f"{m['role']}: {m['content']}" for m in st.session_state.messages[-4:]])
-        full_context = f"{system_prompt}\n\nLỊCH SỬ ĐỐI THOẠI:\n{conversation_history}\n\nHọc sinh vừa nói: {prompt_to_send}\n\nCô Tâm phản hồi:"
+                    history_items = [f"{m['role']}: {m['content']}" for m in st.session_state.messages[-4:]]
+                    conversation_history = "\n".join(history_items)
+                    full_context = f"{system_prompt}\n\nLỊCH SỬ ĐỐI THOẠI:\n{conversation_history}\n\nHọc sinh vừa nói: {prompt_to_send}\n\nCô Tâm phản hồi:"
 
-        candidate_models = ["gemini-3.5-flash-lite", "gemini-3.8-flash"]
-        reply = None
-        last_error = ""
+                    candidate_models = ["gemini-3.5-flash-lite", "gemini-3.8-flash"]
+                    reply = None
+                    last_error = ""
 
-        for model_name in candidate_models:
-            for attempt in range(2):
-                try:
-                    response = client.models.generate_content(
-                        model=model_name,
-                        contents=full_context,
-                    )
-                    reply = response.text
-                    break
-                except Exception as e:
-                    last_error = str(e)
-                    if "503" in last_error:
-                        time.sleep(1.5)
-                        continue
-                    break
-            if reply:
-                break
+                    for model_name in candidate_models:
+                        for attempt in range(2):
+                            try:
+                                response = client.models.generate_content(
+                                    model=model_name,
+                                    contents=full_context,
+                                )
+                                reply = response.text
+                                break
+                            except Exception as e:
+                                last_error = str(e)
+                                if "503" in last_error:
+                                    time.sleep(1.5)
+                                    continue
+                                break
+                        if reply:
+                            break
 
-        if not reply:
-            reply = f"Hệ thống máy chủ đang bận xử lý một chút ({last_error}). Em vui lòng thử bấm gửi lại nhé!"
+                    if not reply:
+                        reply = f"Hệ thống máy chủ đang bận xử lý một chút ({last_error}). Em vui lòng thử bấm gửi lại nhé!"
 
-        st.session_state.messages.append({"role": "assistant", "content": reply})
-        st.rerun()
+                    st.markdown(reply)
+                    st.session_state.messages.append({"role": "assistant", "content": reply})
