@@ -10,7 +10,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# TÙY BIẾN GIAO DIỆN (NỀN VÀ FONT CHỮ SƯ PHẠM)
+# TÙY BIẾN GIAO DIỆN (NỀN, FONT CHỮ & ẨN THANH CHÂN TRANG ĐỂ TRÁNH CHE KHUẤT)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Merriweather:wght@700;900&display=swap');
@@ -19,29 +19,36 @@ st.markdown("""
         font-family: 'Be Vietnam Pro', sans-serif;
     }
 
+    /* Ẩn thanh header và footer mặc định của Streamlit */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    .stDeployButton {display:none;}
+    footer:after {display:none;}
+
     /* Khung Header Banner màu nền nổi bật */
     .header-box {
         background: linear-gradient(135deg, #e0f2fe 0%, #ede9fe 50%, #f8fafc 100%);
-        padding: 22px 26px;
-        border-radius: 16px;
+        padding: 20px 24px;
+        border-radius: 14px;
         border: 1px solid #bfdbfe;
         border-left: 8px solid #1d4ed8;
-        box-shadow: 0 6px 18px rgba(30, 64, 175, 0.08);
-        margin-bottom: 22px;
+        box-shadow: 0 4px 14px rgba(30, 64, 175, 0.08);
+        margin-bottom: 18px;
     }
 
     .main-title {
         font-family: 'Merriweather', serif;
-        font-size: 26px;
+        font-size: 24px;
         font-weight: 900;
         color: #1e3a8a;
         margin: 0;
-        padding-bottom: 6px;
+        padding-bottom: 4px;
     }
 
     .sub-title {
         color: #1e293b;
-        font-size: 14.5px;
+        font-size: 14px;
         font-weight: 700;
         margin-top: 4px;
     }
@@ -49,17 +56,17 @@ st.markdown("""
     .section-title {
         font-family: 'Be Vietnam Pro', sans-serif;
         color: #0f172a;
-        font-size: 19px;
+        font-size: 18px;
         font-weight: 800;
-        margin-top: 12px;
+        margin-top: 10px;
         margin-bottom: 6px;
     }
 
     .section-desc {
         color: #334155;
-        font-size: 14.5px;
+        font-size: 14px;
         font-weight: 600;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
     }
 
     div.stButton > button {
@@ -67,8 +74,8 @@ st.markdown("""
         color: #1e40af;
         border: 1.5px solid #93c5fd;
         border-radius: 20px;
-        padding: 6px 15px;
-        font-size: 13.5px;
+        padding: 5px 14px;
+        font-size: 13px;
         font-weight: 700;
         transition: all 0.2s ease-in-out;
     }
@@ -137,7 +144,7 @@ with tab1:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-    # Ô nhập tin nhắn đặt ngay bên dưới nội dung hội thoại
+    # Ô nhập tin nhắn
     user_chat = st.chat_input("Nhập băn khoăn của em về chọn ngành, chọn khối thi...")
     prompt_to_send = user_chat or quick_prompt
 
@@ -158,131 +165,4 @@ with tab1:
                     GIỚI HẠN PHẠM VI NGHIÊM NGẶT (SCOPE BOUNDARY):
                     - BẠN CHỈ TƯ VẤN: Chọn ngành, chọn khối thi, thấu hiểu tính cách/sở thích (DISC, Holland), giải tỏa áp lực học tập/gia đình, phương pháp học tập chung và kế hoạch hành động 30 ngày (E + R = O).
                     - TUYỆT ĐỐI TỪ CHỐI: Giải bài tập cụ thể của các môn học (như giải bài tập Toán, Lý, Hóa, Văn, tích vô hướng, đạo hàm...), viết văn hộ, giải bài tập về nhà, hoặc các chủ đề phiếm ngoài học đường.
-                    - KHI HỌC SINH HỎI NGOÀI PHẠM VI: Hãy mỉm cười từ chối một cách duyên dáng, chuẩn mực sư phạm. Nhắc em rằng đây là không gian dành riêng cho Hướng nghiệp và Khám phá bản thân; khuyên em nên trao đổi với thầy cô bộ môn, sau đó khéo léo hỏi lại xem em có cần cô hỗ trợ gì về mục tiêu nghề nghiệp hay quản lý thời gian không.
-
-                    NGUYÊN TẮC KHAI VẤN (KHI ĐÚNG PHẠM VI HƯỚNG NGHIỆP):
-                    1. Tuyệt đối không liệt kê tiêu đề "Bước 1, Bước 2, Bước 3, Bước 4".
-                    2. Độ dài: Ngắn gọn, ấm áp (khoảng 2-3 đoạn ngắn, dưới 200 từ).
-                    3. Thấu cảm cảm xúc -> Đưa ra góc nhìn sâu sắc -> Luôn kết thúc bằng 1 đến 2 câu hỏi gợi mở để học sinh tự soi chiếu và trả lời.
-                    4. Xưng hô: "cô" - "em". Ngôn từ mực thước sư phạm xứ Huế, tình cảm, tinh tế.
-                    """
-
-                    history_items = [f"{m['role']}: {m['content']}" for m in st.session_state.messages[-4:]]
-                    conversation_history = "\n".join(history_items)
-                    full_context = f"{system_prompt}\n\nLỊCH SỬ ĐỐI THOẠI:\n{conversation_history}\n\nHọc sinh vừa nói: {prompt_to_send}\n\nCô Tâm phản hồi:"
-
-                    candidate_models = ["gemini-3.5-flash-lite", "gemini-3.8-flash"]
-                    reply = None
-                    last_error = ""
-
-                    for model_name in candidate_models:
-                        for attempt in range(2):
-                            try:
-                                response = client.models.generate_content(
-                                    model=model_name,
-                                    contents=full_context,
-                                )
-                                reply = response.text
-                                break
-                            except Exception as e:
-                                last_error = str(e)
-                                if "503" in last_error:
-                                    time.sleep(1.5)
-                                    continue
-                                break
-                        if reply:
-                            break
-
-                    if not reply:
-                        reply = f"Hệ thống máy chủ đang bận xử lý một chút ({last_error}). Em vui lòng thử bấm gửi lại nhé!"
-
-                    st.markdown(reply)
-                    st.session_state.messages.append({"role": "assistant", "content": reply})
-
-# ==========================================
-# TAB 2: TRẮC NGHIỆM TỐ CHẤT (DISC & HOLLAND)
-# ==========================================
-with tab2:
-    st.markdown('<div class="section-title">🧩 Khám phá Tố chất & Phong cách Làm việc</div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-desc">Trả lời 4 câu hỏi trắc nghiệm tình huống dưới đây để nhận diện bức tranh tổng quan về bản thân:</div>', unsafe_allow_html=True)
-
-    with st.form("quiz_form"):
-        q1 = st.radio(
-            "1. Khi tham gia một hoạt động trải nghiệm nhóm tại trường, em thường chủ động đảm nhận vai trò nào?",
-            [
-                "A. Trưởng nhóm, phân công nhiệm vụ và thúc đẩy tiến độ hoàn thành (Nhóm D - Thống trị / Quản lý).",
-                "B. Người dẫn dắt không khí, thuyết trình và tạo sự gắn kết, vui vẻ (Nhóm I - Ảnh hưởng / Xã hội).",
-                "C. Thành viên hỗ trợ chu đáo, luôn lắng nghe và giữ hòa khí cho cả nhóm (Nhóm S - Kiên định / Hòa nhã).",
-                "D. Người lập kế hoạch chi tiết, kiểm tra số liệu và đảm bảo không có sai sót (Nhóm C - Tuân thủ / Kỹ thuật)."
-            ]
-        )
-
-        q2 = st.radio(
-            "2. Trong giờ tự học hoặc thời gian rảnh, hoạt động nào khiến em cảm thấy say mê nhất?",
-            [
-                "A. Lắp ráp, sửa chữa đồ dùng, làm thí nghiệm hoặc vận động thể chất (Holland R - Thực tế).",
-                "B. Đọc tài liệu, tìm hiểu nguyên lý sâu xa của các hiện tượng, nghiên cứu logic (Holland I - Nghiên cứu).",
-                "C. Viết lách, vẽ tranh, thiết kế, dựng video, sáng tạo nội dung (Holland A - Nghệ thuật).",
-                "D. Trò chuyện tâm sự, giúp đỡ bạn bè giải tỏa khúc mắc, lắng nghe tâm tư (Holland S - Xã hội)."
-            ]
-        )
-
-        q3 = st.radio(
-            "3. Khi đứng trước một quyết định quan trọng (như chọn khối thi lớp 10 lên 11), em căn cứ vào điều gì nhất?",
-            [
-                "A. Mục tiêu nghề nghiệp tương lai mang lại thu nhập và vị thế cao.",
-                "B. Điểm số các môn học thực tế và khả năng logic của bản thân.",
-                "C. Cảm xúc, niềm đam mê cá nhân và mong muốn sống đúng với chính mình.",
-                "D. Lời khuyên định hướng từ thầy cô giáo và sự an tâm của cha mẹ."
-            ]
-        )
-
-        q4 = st.radio(
-            "4. Khi gặp một thất bại (ví dụ: điểm thi thử không như mong đợi), phản ứng đầu tiên của em là gì?",
-            [
-                "A. Quyết tâm học bù ngay lập tức để lấy lại phong độ ở lần sau.",
-                "B. Tìm bạn bè hoặc thầy cô để tâm sự và tìm kiếm sự động viên.",
-                "C. Khép mình lại, cảm thấy tự ti và lo lắng một thời gian.",
-                "D. Ngồi rà soát lại từng lỗi sai trong bài thi để tìm nguyên nhân cụ thể."
-            ]
-        )
-
-        submitted = st.form_submit_button("Tổng hợp kết quả & Gửi sang Cô Tâm tư vấn")
-
-    if submitted:
-        st.success("✅ Đã ghi nhận câu trả lời của em!")
-        st.info(
-            f"**Tóm tắt dữ liệu tố chất:**\n"
-            f"- Phong cách hành động: {q1.split('.')[0]}\n"
-            f"- Xu hướng sở thích: {q2.split('.')[0]}\n"
-            f"- Xu hướng ra quyết định: {q3.split('.')[0]}\n"
-            f"- Phản ứng trước biến cố: {q4.split('.')[0]}\n\n"
-            "👉 Hãy quay lại **Tab Khung Cố Vấn** và gõ câu hỏi vào ô chat để nhận phản hồi chi tiết từ Cô Tâm nhé!"
-        )
-
-# ==========================================
-# TAB 3: SỔ TAY HƯỚNG NGHIỆP & LỘ TRÌNH 30 NGÀY
-# ==========================================
-with tab3:
-    st.markdown('<div class="section-title">📖 Triết Lý Khai Vấn & Công Thức Thành Công</div>', unsafe_allow_html=True)
-
-    col_l, col_r = st.columns(2)
-
-    with col_l:
-        st.markdown("""
-        ### 🌟 Công thức Vàng: $E + R = O$
-        * **$E$ (Event - Sự kiện):** Những điều xảy ra khách quan ngoài tầm kiểm soát của em (đề thi, hoàn cảnh gia đình, xu hướng thị trường thay đổi).
-        * **$R$ (Response - Phản ứng):** Thái độ, tư duy và hành động chủ động của em trước sự việc.
-        * **$O$ (Outcome - Kết quả):** Tương lai thực tế mà em nhận được.
-        
-        > *"Chúng ta không thể thay đổi hướng gió ($E$), nhưng hoàn toàn có thể điều chỉnh cánh buồm ($R$) để cập bến mong muốn ($O$)."*
-        """)
-
-    with col_r:
-        st.markdown("""
-        ### 🪜 Lộ trình Bậc thang 30 ngày chuyển hóa
-        * **Tuần 1 (Thấu hiểu bản thân):** Hoàn thành bài trắc nghiệm DISC & Holland, viết ra 3 điểm mạnh nhất và 2 điểm chưa tự tin.
-        * **Tuần 2 (Khảo sát thực tế nghề nghiệp):** Phỏng vấn hoặc tìm hiểu sâu về 2 nghề em đang quan tâm (công việc hàng ngày, yêu cầu tuyển dụng).
-        * **Tuần 3 (Rèn luyện Kỹ năng bù trừ):** Tập trung cải thiện 1 kỹ năng bổ trợ còn thiếu (kỹ năng thuyết trình, kỹ năng quản lý thời gian).
-        * **Tuần 4 (Xác lập cam kết hành động):** Viết bản cam kết mục tiêu học tập năm học và kế hoạch rèn luyện gửi cho cô chủ nhiệm/cố vấn.
-        """)
+                    - KHI HỌC SINH HỎI NGOÀI PHẠM VI: Hãy mỉm cười từ chối một cách duyên dáng, chuẩn mực sư
