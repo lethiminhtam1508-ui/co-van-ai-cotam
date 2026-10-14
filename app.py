@@ -10,7 +10,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# TÙY BIẾN GIAO DIỆN NỀN TIÊU ĐỀ VÀ CHỮ IN ĐẬM
+# TÙY BIẾN GIAO DIỆN (NỀN VÀ FONT CHỮ SƯ PHẠM)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Merriweather:wght@700;900&display=swap');
@@ -19,73 +19,64 @@ st.markdown("""
         font-family: 'Be Vietnam Pro', sans-serif;
     }
 
-    /* Khung Header Banner có màu nền nổi bật */
+    /* Khung Header Banner màu nền nổi bật */
     .header-box {
         background: linear-gradient(135deg, #e0f2fe 0%, #ede9fe 50%, #f8fafc 100%);
-        padding: 24px 28px;
+        padding: 22px 26px;
         border-radius: 16px;
         border: 1px solid #bfdbfe;
         border-left: 8px solid #1d4ed8;
-        box-shadow: 0 8px 20px rgba(30, 64, 175, 0.08);
-        margin-bottom: 24px;
+        box-shadow: 0 6px 18px rgba(30, 64, 175, 0.08);
+        margin-bottom: 22px;
     }
 
     .main-title {
         font-family: 'Merriweather', serif;
-        font-size: 27px;
+        font-size: 26px;
         font-weight: 900;
         color: #1e3a8a;
         margin: 0;
         padding-bottom: 6px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
     }
 
     .sub-title {
         color: #1e293b;
-        font-size: 15px;
-        font-weight: 700; /* In đậm tiêu đề phụ */
-        margin-top: 6px;
-        letter-spacing: 0.2px;
+        font-size: 14.5px;
+        font-weight: 700;
+        margin-top: 4px;
     }
 
-    /* Các tiêu đề phụ trong các tab */
     .section-title {
         font-family: 'Be Vietnam Pro', sans-serif;
         color: #0f172a;
-        font-size: 20px;
-        font-weight: 800; /* In đậm rõ nét */
-        margin-top: 14px;
-        margin-bottom: 8px;
+        font-size: 19px;
+        font-weight: 800;
+        margin-top: 12px;
+        margin-bottom: 6px;
     }
 
     .section-desc {
         color: #334155;
         font-size: 14.5px;
-        font-weight: 600; /* In đậm chữ chú thích */
+        font-weight: 600;
         margin-bottom: 12px;
     }
 
-    /* Nút câu hỏi nhanh */
     div.stButton > button {
         background-color: #ffffff;
         color: #1e40af;
         border: 1.5px solid #93c5fd;
         border-radius: 20px;
-        padding: 7px 16px;
+        padding: 6px 15px;
         font-size: 13.5px;
-        font-weight: 700; /* Chữ trên nút in đậm */
+        font-weight: 700;
         transition: all 0.2s ease-in-out;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.03);
     }
 
     div.stButton > button:hover {
         background-color: #eff6ff;
         border-color: #2563eb;
         color: #1d4ed8;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.12);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -99,7 +90,7 @@ if api_key:
 else:
     st.warning("⚠️ Chưa tìm thấy GEMINI_API_KEY trong Advanced settings -> Secrets trên Streamlit Cloud.")
 
-# 2. Tiêu đề ứng dụng (Đã áp dụng nền màu gradient & in đậm)
+# 2. Tiêu đề ứng dụng
 st.markdown("""
 <div class="header-box">
     <h1 class="main-title">🧭 Trợ Lý Cố Vấn Hướng Nghiệp AI - Cô Tâm</h1>
@@ -123,8 +114,6 @@ if "messages" not in st.session_state:
 # 3. Phân chia các Tab chức năng
 tab1, tab2, tab3 = st.tabs(["💬 Khung Cố Vấn Khai Vấn", "📊 Trắc Nghiệm Tố Chất (DISC & Holland)", "📜 Sổ Tay & Lộ Trình 30 Ngày"])
 
-goi_y = ""
-
 # ==========================================
 # TAB 1: KHUNG CỐ VẤN KHAI VẤN (AI CHATBOT)
 # ==========================================
@@ -135,17 +124,80 @@ with tab1:
     # Gợi ý tình huống nhanh
     st.markdown("**Gợi ý tình huống nhanh:**")
     col_a, col_b, col_c = st.columns(3)
+    quick_prompt = None
     if col_a.button("IT & Tố chất Hướng nội (S)"):
-        goi_y = "Em muốn học ngành Công nghệ Thông tin nhưng tính em rất hướng nội và ngại giao tiếp, kết quả trắc nghiệm ra nhóm Trầm tĩnh (S). Liệu em có theo được không cô?"
+        quick_prompt = "Em muốn học ngành Công nghệ Thông tin nhưng tính em rất hướng nội và ngại giao tiếp, kết quả trắc nghiệm ra nhóm Trầm tĩnh (S). Liệu em có theo được không cô?"
     if col_b.button("Sư phạm hay Kinh doanh?"):
-        goi_y = "Gia đình muốn em thi Sư phạm cho ổn định, nhưng em lại thích kinh doanh khởi nghiệp. Em đang rất khó xử không biết chọn thế nào ạ?"
+        quick_prompt = "Gia đình muốn em thi Sư phạm cho ổn định, nhưng em lại thích kinh doanh khởi nghiệp. Em đang rất khó xử không biết chọn thế nào ạ?"
     if col_c.button("Học lực khá, chưa rõ đam mê?"):
-        goi_y = "Em đang học lớp 11, học lực ở mức khá nhưng chưa thực sự thấy mình nổi trội môn nào hay đam mê ngành gì cụ thể. Cô giúp em với ạ!"
+        quick_prompt = "Em đang học lớp 11, học lực ở mức khá nhưng chưa thực sự thấy mình nổi trội môn nào hay đam mê ngành gì cụ thể. Cô giúp em với ạ!"
 
-    # Hiển thị lịch sử tin nhắn
+    # Hiển thị toàn bộ lịch sử tin nhắn
     for msg in st.session_state.messages:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
+
+    # Ô nhập tin nhắn đặt ngay bên dưới nội dung hội thoại
+    user_chat = st.chat_input("Nhập băn khoăn của em về chọn ngành, chọn khối thi...")
+    prompt_to_send = user_chat or quick_prompt
+
+    if prompt_to_send:
+        st.session_state.messages.append({"role": "user", "content": prompt_to_send})
+        with st.chat_message("user"):
+            st.markdown(prompt_to_send)
+
+        with st.chat_message("assistant"):
+            if not client:
+                st.error("Chưa kết nối được với AI (Thiếu API Key). Vui lòng cấu hình Secrets trên Streamlit Cloud.")
+            else:
+                with st.spinner("Cô Tâm đang suy ngẫm câu trả lời cho em..."):
+                    system_prompt = """
+                    Bạn là cô giáo Lê Thị Minh Tâm, phụ trách Hoạt động Trải nghiệm, Hướng nghiệp (HĐTN, HN) tại Trường THPT Phan Đăng Lưu, Huế.
+                    Bạn là người CÔ ĐỒNG HÀNH & CHUYÊN GIA KHAI VẤN (COACHING) CHỈ CHUYÊN SÂU VỀ HƯỚNG NGHIỆP VÀ TÂM LÝ LỨA TUỔI HỌC ĐƯỜNG.
+
+                    GIỚI HẠN PHẠM VI NGHIÊM NGẶT (SCOPE BOUNDARY):
+                    - BẠN CHỈ TƯ VẤN: Chọn ngành, chọn khối thi, thấu hiểu tính cách/sở thích (DISC, Holland), giải tỏa áp lực học tập/gia đình, phương pháp học tập chung và kế hoạch hành động 30 ngày (E + R = O).
+                    - TUYỆT ĐỐI TỪ CHỐI: Giải bài tập cụ thể của các môn học (như giải bài tập Toán, Lý, Hóa, Văn, tích vô hướng, đạo hàm...), viết văn hộ, giải bài tập về nhà, hoặc các chủ đề phiếm ngoài học đường.
+                    - KHI HỌC SINH HỎI NGOÀI PHẠM VI: Hãy mỉm cười từ chối một cách duyên dáng, chuẩn mực sư phạm. Nhắc em rằng đây là không gian dành riêng cho Hướng nghiệp và Khám phá bản thân; khuyên em nên trao đổi với thầy cô bộ môn, sau đó khéo léo hỏi lại xem em có cần cô hỗ trợ gì về mục tiêu nghề nghiệp hay quản lý thời gian không.
+
+                    NGUYÊN TẮC KHAI VẤN (KHI ĐÚNG PHẠM VI HƯỚNG NGHIỆP):
+                    1. Tuyệt đối không liệt kê tiêu đề "Bước 1, Bước 2, Bước 3, Bước 4".
+                    2. Độ dài: Ngắn gọn, ấm áp (khoảng 2-3 đoạn ngắn, dưới 200 từ).
+                    3. Thấu cảm cảm xúc -> Đưa ra góc nhìn sâu sắc -> Luôn kết thúc bằng 1 đến 2 câu hỏi gợi mở để học sinh tự soi chiếu và trả lời.
+                    4. Xưng hô: "cô" - "em". Ngôn từ mực thước sư phạm xứ Huế, tình cảm, tinh tế.
+                    """
+
+                    history_items = [f"{m['role']}: {m['content']}" for m in st.session_state.messages[-4:]]
+                    conversation_history = "\n".join(history_items)
+                    full_context = f"{system_prompt}\n\nLỊCH SỬ ĐỐI THOẠI:\n{conversation_history}\n\nHọc sinh vừa nói: {prompt_to_send}\n\nCô Tâm phản hồi:"
+
+                    candidate_models = ["gemini-3.5-flash-lite", "gemini-3.8-flash"]
+                    reply = None
+                    last_error = ""
+
+                    for model_name in candidate_models:
+                        for attempt in range(2):
+                            try:
+                                response = client.models.generate_content(
+                                    model=model_name,
+                                    contents=full_context,
+                                )
+                                reply = response.text
+                                break
+                            except Exception as e:
+                                last_error = str(e)
+                                if "503" in last_error:
+                                    time.sleep(1.5)
+                                    continue
+                                break
+                        if reply:
+                            break
+
+                    if not reply:
+                        reply = f"Hệ thống máy chủ đang bận xử lý một chút ({last_error}). Em vui lòng thử bấm gửi lại nhé!"
+
+                    st.markdown(reply)
+                    st.session_state.messages.append({"role": "assistant", "content": reply})
 
 # ==========================================
 # TAB 2: TRẮC NGHIỆM TỐ CHẤT (DISC & HOLLAND)
@@ -185,4 +237,52 @@ with tab2:
             ]
         )
 
-        q4 = st
+        q4 = st.radio(
+            "4. Khi gặp một thất bại (ví dụ: điểm thi thử không như mong đợi), phản ứng đầu tiên của em là gì?",
+            [
+                "A. Quyết tâm học bù ngay lập tức để lấy lại phong độ ở lần sau.",
+                "B. Tìm bạn bè hoặc thầy cô để tâm sự và tìm kiếm sự động viên.",
+                "C. Khép mình lại, cảm thấy tự ti và lo lắng một thời gian.",
+                "D. Ngồi rà soát lại từng lỗi sai trong bài thi để tìm nguyên nhân cụ thể."
+            ]
+        )
+
+        submitted = st.form_submit_button("Tổng hợp kết quả & Gửi sang Cô Tâm tư vấn")
+
+    if submitted:
+        st.success("✅ Đã ghi nhận câu trả lời của em!")
+        st.info(
+            f"**Tóm tắt dữ liệu tố chất:**\n"
+            f"- Phong cách hành động: {q1.split('.')[0]}\n"
+            f"- Xu hướng sở thích: {q2.split('.')[0]}\n"
+            f"- Xu hướng ra quyết định: {q3.split('.')[0]}\n"
+            f"- Phản ứng trước biến cố: {q4.split('.')[0]}\n\n"
+            "👉 Hãy quay lại **Tab Khung Cố Vấn** và gõ câu hỏi vào ô chat để nhận phản hồi chi tiết từ Cô Tâm nhé!"
+        )
+
+# ==========================================
+# TAB 3: SỔ TAY HƯỚNG NGHIỆP & LỘ TRÌNH 30 NGÀY
+# ==========================================
+with tab3:
+    st.markdown('<div class="section-title">📖 Triết Lý Khai Vấn & Công Thức Thành Công</div>', unsafe_allow_html=True)
+
+    col_l, col_r = st.columns(2)
+
+    with col_l:
+        st.markdown("""
+        ### 🌟 Công thức Vàng: $E + R = O$
+        * **$E$ (Event - Sự kiện):** Những điều xảy ra khách quan ngoài tầm kiểm soát của em (đề thi, hoàn cảnh gia đình, xu hướng thị trường thay đổi).
+        * **$R$ (Response - Phản ứng):** Thái độ, tư duy và hành động chủ động của em trước sự việc.
+        * **$O$ (Outcome - Kết quả):** Tương lai thực tế mà em nhận được.
+        
+        > *"Chúng ta không thể thay đổi hướng gió ($E$), nhưng hoàn toàn có thể điều chỉnh cánh buồm ($R$) để cập bến mong muốn ($O$)."*
+        """)
+
+    with col_r:
+        st.markdown("""
+        ### 🪜 Lộ trình Bậc thang 30 ngày chuyển hóa
+        * **Tuần 1 (Thấu hiểu bản thân):** Hoàn thành bài trắc nghiệm DISC & Holland, viết ra 3 điểm mạnh nhất và 2 điểm chưa tự tin.
+        * **Tuần 2 (Khảo sát thực tế nghề nghiệp):** Phỏng vấn hoặc tìm hiểu sâu về 2 nghề em đang quan tâm (công việc hàng ngày, yêu cầu tuyển dụng).
+        * **Tuần 3 (Rèn luyện Kỹ năng bù trừ):** Tập trung cải thiện 1 kỹ năng bổ trợ còn thiếu (kỹ năng thuyết trình, kỹ năng quản lý thời gian).
+        * **Tuần 4 (Xác lập cam kết hành động):** Viết bản cam kết mục tiêu học tập năm học và kế hoạch rèn luyện gửi cho cô chủ nhiệm/cố vấn.
+        """)
