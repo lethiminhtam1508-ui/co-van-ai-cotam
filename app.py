@@ -1,5 +1,6 @@
 import streamlit as st
 import os
+import time
 from google import genai
 from google.genai import types
 
@@ -96,16 +97,26 @@ with tab1:
                     """
 
                     full_context = f"{system_prompt}\n\nHọc sinh chia sẻ: {prompt_to_send}"
-                    try:
-                        response = client.models.generate_content(
-                            model="gemini-2.0-flash",
-                            contents=full_context,
-                        )
-                        reply = response.text
-                        st.markdown(reply)
-                        st.session_state.messages.append({"role": "assistant", "content": reply})
-                    except Exception as e:
-                        st.error(f"Đã xảy ra lỗi khi kết nối với AI: {e}")
+                    
+                    # Cơ chế thử lại tự động nếu máy chủ bận (503)
+                    reply = None
+                    for attempt in range(3):
+                        try:
+                            response = client.models.generate_content(
+                                model="gemini-3.8-flash",
+                                contents=full_context,
+                            )
+                            reply = response.text
+                            break
+                        except Exception as e:
+                            if "503" in str(e) and attempt < 2:
+                                time.sleep(2)
+                                continue
+                            reply = f"Đã xảy ra lỗi khi kết nối với AI: {e}"
+                            break
+
+                    st.markdown(reply)
+                    st.session_state.messages.append({"role": "assistant", "content": reply})
 
 # ==========================================
 # TAB 2: TRẮC NGHIỆM TỐ CHẤT (DISC & HOLLAND)
