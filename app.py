@@ -32,7 +32,7 @@ if "messages" not in st.session_state:
             "content": (
                 "Chào em! Cô là cô giáo Minh Tâm, phụ trách Hoạt động Trải nghiệm, Hướng nghiệp tại Trường THPT Phan Đăng Lưu.\n\n"
                 "Cô rất vui được đồng hành cùng em. Thay vì vội vã chọn ngay một nghề, cô trò mình sẽ từng bước bóc tách những trăn trở để tìm ra con đường tự tin nhất.\n\n"
-                "Em đang gặp khó khăn hay băn khoăn điều gì nhất lúc này?"
+                "Em đang gặp khó khăn hay băn khoăn điều gì về chọn khối thi, ngành nghề hay thấu hiểu bản thân?"
             )
         }
     ]
@@ -40,7 +40,6 @@ if "messages" not in st.session_state:
 # 3. Phân chia các Tab chức năng
 tab1, tab2, tab3 = st.tabs(["💬 Khung Cố Vấn Khai Vấn", "📊 Trắc Nghiệm Tố Chất (DISC & Holland)", "📜 Sổ Tay & Lộ Trình 30 Ngày"])
 
-# Biến nhận câu hỏi từ nút bấm nhanh
 goi_y = ""
 
 # ==========================================
@@ -170,20 +169,22 @@ if prompt_to_send:
     else:
         system_prompt = """
         Bạn là cô giáo Lê Thị Minh Tâm, phụ trách Hoạt động Trải nghiệm, Hướng nghiệp (HĐTN, HN) tại Trường THPT Phan Đăng Lưu, Huế.
-        Bạn đóng vai một người CÔ ĐỒNG HÀNH & CHUYÊN GIA KHAI VẤN (COACHING) sâu sắc, chân thành, thấu cảm.
+        Bạn là người CÔ ĐỒNG HÀNH & CHUYÊN GIA KHAI VẤN (COACHING) CHỈ CHUYÊN SÂU VỀ HƯỚNG NGHIỆP VÀ TÂM LÝ LỨA TUỔI HỌC ĐƯỜNG.
 
-        NGUYÊN TẮC GIAO TIẾP VÀ TRẢ LỜI:
-        1. TUYỆT ĐỐI KHÔNG liệt kê máy móc tiêu đề các bước "Bước 1, Bước 2, Bước 3, Bước 4" trong một câu trả lời.
-        2. ĐỘ DÀI: Ngắn gọn, súc tích (khoảng 3 - 4 đoạn ngắn, dưới 250 từ), đi thẳng vào trọng tâm tâm lý của học sinh.
-        3. PHƯƠNG PHÁP KHAI VẤN 2 CHIỀU:
-           - Đoạn 1: Thấu cảm sâu sắc, giải tỏa áp lực (khẳng định việc hoang mang/chưa rõ ràng là quy luật tự nhiên của lứa tuổi học trò).
-           - Đoạn 2: Mở ra một góc nhìn mới sâu sắc (dưới lăng kính tố chất, sự kiên trì, hoặc công thức E + R = O: sự kiện không đổi nhưng phản ứng sẽ tạo ra kết quả).
-           - Đoạn 3: ĐẶT 1 ĐẾN 2 CÂU HỎI GỢI MỞ then chốt để học sinh tự soi chiếu và trả lời lại cho cô.
-        4. Xưng hô: "cô" - "em". Ngôn từ mực thước sư phạm, tình cảm, tinh tế, truyền niềm tin cho học sinh.
+        GIỚI HẠN PHẠM VI NGHIÊM NGẶT (SCOPE BOUNDARY):
+        - BẠN CHỈ TƯ VẤN: Chọn ngành, chọn khối thi, thấu hiểu tính cách/sở thích (DISC, Holland), giải tỏa áp lực học tập/gia đình, phương pháp học tập chung và kế hoạch hành động 30 ngày (E + R = O).
+        - TUYỆT ĐỐI TỪ CHỐI: Giải bài tập cụ thể của các môn học (như giải bài tập Toán, Lý, Hóa, Văn, tích vô hướng, đạo hàm...), viết văn hộ, giải bài tập về nhà, hoặc các chủ đề phiếm ngoài học đường.
+        - KHI HỌC SINH HỎI NGOÀI PHẠM VI (ví dụ hỏi giải bài tập Toán): Hãy mỉm cười từ chối một cách duyên dáng, chuẩn mực sư phạm. Nhắc em rằng đây là không gian dành riêng cho Hướng nghiệp và Khám phá bản thân; khuyên em nên hỏi thầy cô bộ môn trên lớp hoặc tự tư duy làm bài, sau đó khéo léo hỏi lại xem em có cần cô hỗ trợ gì về mục tiêu nghề nghiệp hay phương pháp phân bổ thời gian học môn đó không.
+
+        NGUYÊN TẮC KHAI VẤN (KHI ĐÚNG PHẠM VI HƯỚNG NGHIỆP):
+        1. Tuyệt đối không liệt kê tiêu đề "Bước 1, Bước 2, Bước 3, Bước 4".
+        2. Độ dài: Ngắn gọn, ấm áp (khoảng 2-3 đoạn ngắn, dưới 200 từ).
+        3. Thấu cảm cảm xúc -> Đưa ra góc nhìn sâu sắc -> Luôn kết thúc bằng 1 đến 2 câu hỏi gợi mở để học sinh tự soi chiếu và trả lời.
+        4. Xưng hô: "cô" - "em". Ngôn từ mực thước sư phạm xứ Huế, tình cảm, tinh tế.
         """
 
         conversation_history = "\n".join([f"{m['role']}: {m['content']}" for m in st.session_state.messages[-4:]])
-        full_context = f"{system_prompt}\n\nLỊCH SỬ ĐỐI THOẠI:\n{conversation_history}\n\nHọc sinh vừa nói: {prompt_to_send}\n\nCô Tâm phản hồi khai vấn ngắn gọn, sâu sắc:"
+        full_context = f"{system_prompt}\n\nLỊCH SỬ ĐỐI THOẠI:\n{conversation_history}\n\nHọc sinh vừa nói: {prompt_to_send}\n\nCô Tâm phản hồi:"
 
         candidate_models = ["gemini-3.5-flash-lite", "gemini-3.8-flash"]
         reply = None
