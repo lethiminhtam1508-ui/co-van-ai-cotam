@@ -24,8 +24,24 @@ else:
 st.title("🧭 Trợ Lý Cố Vấn Hướng Nghiệp AI - Cô Tâm")
 st.caption("Trường THPT Phan Đăng Lưu | Đồng hành khai vấn & kiến tạo tương lai cùng học sinh")
 
+# Khởi tạo lịch sử trò chuyện
+if "messages" not in st.session_state:
+    st.session_state.messages = [
+        {
+            "role": "assistant",
+            "content": (
+                "Chào em! Cô là cô giáo Minh Tâm, phụ trách Hoạt động Trải nghiệm, Hướng nghiệp tại Trường THPT Phan Đăng Lưu.\n\n"
+                "Cô rất vui được đồng hành cùng em. Thay vì vội vã chọn ngay một nghề, cô trò mình sẽ từng bước bóc tách những trăn trở để tìm ra con đường tự tin nhất.\n\n"
+                "Em đang gặp khó khăn hay băn khoăn điều gì nhất lúc này?"
+            )
+        }
+    ]
+
 # 3. Phân chia các Tab chức năng
 tab1, tab2, tab3 = st.tabs(["💬 Khung Cố Vấn Khai Vấn", "📊 Trắc Nghiệm Tố Chất (DISC & Holland)", "📜 Sổ Tay & Lộ Trình 30 Ngày"])
+
+# Biến nhận câu hỏi từ nút bấm nhanh
+goi_y = ""
 
 # ==========================================
 # TAB 1: KHUNG CỐ VẤN KHAI VẤN (AI CHATBOT)
@@ -34,10 +50,9 @@ with tab1:
     st.subheader("Trò chuyện trực tiếp cùng Cô Tâm")
     st.write("Em đang băn khoăn về chọn khối thi, chọn ngành, mâu thuẫn giữa sở thích và năng lực, hay áp lực từ gia đình? Hãy chia sẻ với cô nhé!")
 
-    # Gợi ý câu hỏi nhanh
+    # Gợi ý tình huống nhanh
     st.markdown("**Gợi ý tình huống nhanh:**")
     col_a, col_b, col_c = st.columns(3)
-    goi_y = ""
     if col_a.button("Em muốn học IT nhưng tính hướng nội, sợ giao tiếp?"):
         goi_y = "Em muốn học ngành Công nghệ Thông tin nhưng tính em rất hướng nội và ngại giao tiếp, kết quả trắc nghiệm ra nhóm Trầm tĩnh (S). Liệu em có theo được không cô?"
     if col_b.button("Bố mẹ muốn em thi Sư phạm, em lại thích Kinh doanh?"):
@@ -45,86 +60,10 @@ with tab1:
     if col_c.button("Em học lực khá, chưa biết mình thích ngành gì?"):
         goi_y = "Em đang học lớp 11, học lực ở mức khá nhưng chưa thực sự thấy mình nổi trội môn nào hay đam mê ngành gì cụ thể. Cô giúp em với ạ!"
 
-    # Lưu lịch sử chat
-    if "messages" not in st.session_state:
-        st.session_state.messages = [
-            {
-                "role": "assistant",
-                "content": (
-                    "Chào em! Cô là cô giáo Minh Tâm, phụ trách Hoạt động Trải nghiệm, Hướng nghiệp tại Trường THPT Phan Đăng Lưu.\n\n"
-                    "Cô rất vui được đồng hành cùng em. Thay vì vội vã chọn ngay một nghề, cô trò mình sẽ từng bước bóc tách những trăn trở để tìm ra con đường tự tin nhất.\n\n"
-                    "Em đang gặp khó khăn hay băn khoăn điều gì nhất lúc này?"
-                )
-            }
-        ]
-
-    # Hiển thị lịch sử chat
+    # Hiển thị toàn bộ lịch sử tin nhắn
     for msg in st.session_state.messages:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
-
-    # Xử lý khi có câu hỏi mới
-    user_input = st.chat_input("Nhập băn khoăn của em về chọn ngành, chọn khối thi...")
-    prompt_to_send = user_input or (goi_y if goi_y and ("last_quick" not in st.session_state or st.session_state.last_quick != goi_y) else None)
-
-    if prompt_to_send:
-        if goi_y:
-            st.session_state.last_quick = goi_y
-
-        st.session_state.messages.append({"role": "user", "content": prompt_to_send})
-        with st.chat_message("user"):
-            st.markdown(prompt_to_send)
-
-        with st.chat_message("assistant"):
-            if not client:
-                st.error("Chưa kết nối được với AI (Thiếu API Key). Vui lòng cấu hình Secrets trên Streamlit Cloud.")
-            else:
-                with st.spinner("Cô Tâm đang lắng nghe và suy ngẫm..."):
-                    system_prompt = """
-                    Bạn là cô giáo Lê Thị Minh Tâm, phụ trách Hoạt động Trải nghiệm, Hướng nghiệp (HĐTN, HN) tại Trường THPT Phan Đăng Lưu, Huế.
-                    Bạn đóng vai một người CÔ ĐỒNG HÀNH & CHUYÊN GIA KHAI VẤN (COACHING) sâu sắc, chân thành, thấu cảm.
-
-                    NGUYÊN TẮC GIAO TIẾP VÀ TRẢ LỜI:
-                    1. TUYỆT ĐỐI KHÔNG liệt kê máy móc tiêu đề các bước "Bước 1, Bước 2, Bước 3, Bước 4" trong một câu trả lời.
-                    2. ĐỘ DÀI: Ngắn gọn, súc tích (khoảng 3 - 4 đoạn ngắn, dưới 250 từ), đi thẳng vào trọng tâm tâm lý của học sinh.
-                    3. PHƯƠNG PHÁP KHAI VẤN 2 CHIỀU:
-                       - Đoạn 1: Thấu cảm sâu sắc, giải tỏa áp lực (khẳng định việc hoang mang/chưa rõ ràng là quy luật tự nhiên của lứa tuổi học trò).
-                       - Đoạn 2: Mở ra một góc nhìn mới sâu sắc (dưới lăng kính tố chất, sự kiên trì, hoặc công thức E + R = O: sự kiện không đổi nhưng phản ứng sẽ tạo ra kết quả).
-                       - Đoạn 3: ĐẶT 1 ĐẾN 2 CÂU HỎI GỢI MỞ then chốt để học sinh tự soi chiếu và trả lời lại cho cô.
-                    4. Xưng hô: "cô" - "em". Ngôn từ mực thước sư phạm, tình cảm, tinh tế, truyền niềm tin cho học sinh.
-                    """
-
-                    # Ghép toàn bộ ngữ cảnh hội thoại để AI nhớ lời học sinh nói trước đó
-                    conversation_history = "\n".join([f"{m['role']}: {m['content']}" for m in st.session_state.messages[-4:]])
-                    full_context = f"{system_prompt}\n\nLỊCH SỬ ĐỐI THOẠI:\n{conversation_history}\n\nHọc sinh vừa nói: {prompt_to_send}\n\nCô Tâm phản hồi khai vấn ngắn gọn, sâu sắc:"
-                    
-                    candidate_models = ["gemini-3.5-flash-lite", "gemini-3.8-flash"]
-                    reply = None
-                    last_error = ""
-
-                    for model_name in candidate_models:
-                        for attempt in range(2):
-                            try:
-                                response = client.models.generate_content(
-                                    model=model_name,
-                                    contents=full_context,
-                                )
-                                reply = response.text
-                                break
-                            except Exception as e:
-                                last_error = str(e)
-                                if "503" in last_error:
-                                    time.sleep(1.5)
-                                    continue
-                                break
-                        if reply:
-                            break
-
-                    if not reply:
-                        reply = f"Hệ thống máy chủ đang bận xử lý một chút ({last_error}). Em vui lòng thử bấm gửi lại nhé!"
-
-                    st.markdown(reply)
-                    st.session_state.messages.append({"role": "assistant", "content": reply})
 
 # ==========================================
 # TAB 2: TRẮC NGHIỆM TỐ CHẤT (DISC & HOLLAND)
@@ -184,7 +123,7 @@ with tab2:
             f"- Xu hướng sở thích: {q2.split('.')[0]}\n"
             f"- Xu hướng ra quyết định: {q3.split('.')[0]}\n"
             f"- Phản ứng trước biến cố: {q4.split('.')[0]}\n\n"
-            "👉 Hãy quay lại **Tab Khung Cố Vấn** và gõ: *'Cô ơi, em vừa làm trắc nghiệm với kết quả [A/B/C/D], nhờ cô phân tích giúp em lộ trình phù hợp!'* để nhận phản hồi chi tiết từ Cô Tâm nhé!"
+            "👉 Hãy quay lại **Tab Khung Cố Vấn** và gõ câu hỏi vào ô chat phía dưới để nhận phản hồi chi tiết từ Cô Tâm nhé!"
         )
 
 # ==========================================
@@ -213,3 +152,63 @@ with tab3:
         * **Tuần 3 (Rèn luyện Kỹ năng bù trừ):** Tập trung cải thiện 1 kỹ năng bổ trợ còn thiếu (kỹ năng thuyết trình, kỹ năng quản lý thời gian).
         * **Tuần 4 (Xác lập cam kết hành động):** Viết bản cam kết mục tiêu học tập năm học và kế hoạch rèn luyện gửi cho cô chủ nhiệm/cố vấn.
         """)
+
+# ==========================================
+# Ô NHẬP LIỆU GHIM DƯỚI ĐÁY TRÌNH DUYỆT
+# ==========================================
+user_input = st.chat_input("Nhập băn khoăn của em về chọn ngành, chọn khối thi...")
+prompt_to_send = user_input or (goi_y if goi_y and ("last_quick" not in st.session_state or st.session_state.last_quick != goi_y) else None)
+
+if prompt_to_send:
+    if goi_y:
+        st.session_state.last_quick = goi_y
+
+    st.session_state.messages.append({"role": "user", "content": prompt_to_send})
+
+    if not client:
+        st.error("Chưa kết nối được với AI (Thiếu API Key). Vui lòng cấu hình Secrets trên Streamlit Cloud.")
+    else:
+        system_prompt = """
+        Bạn là cô giáo Lê Thị Minh Tâm, phụ trách Hoạt động Trải nghiệm, Hướng nghiệp (HĐTN, HN) tại Trường THPT Phan Đăng Lưu, Huế.
+        Bạn đóng vai một người CÔ ĐỒNG HÀNH & CHUYÊN GIA KHAI VẤN (COACHING) sâu sắc, chân thành, thấu cảm.
+
+        NGUYÊN TẮC GIAO TIẾP VÀ TRẢ LỜI:
+        1. TUYỆT ĐỐI KHÔNG liệt kê máy móc tiêu đề các bước "Bước 1, Bước 2, Bước 3, Bước 4" trong một câu trả lời.
+        2. ĐỘ DÀI: Ngắn gọn, súc tích (khoảng 3 - 4 đoạn ngắn, dưới 250 từ), đi thẳng vào trọng tâm tâm lý của học sinh.
+        3. PHƯƠNG PHÁP KHAI VẤN 2 CHIỀU:
+           - Đoạn 1: Thấu cảm sâu sắc, giải tỏa áp lực (khẳng định việc hoang mang/chưa rõ ràng là quy luật tự nhiên của lứa tuổi học trò).
+           - Đoạn 2: Mở ra một góc nhìn mới sâu sắc (dưới lăng kính tố chất, sự kiên trì, hoặc công thức E + R = O: sự kiện không đổi nhưng phản ứng sẽ tạo ra kết quả).
+           - Đoạn 3: ĐẶT 1 ĐẾN 2 CÂU HỎI GỢI MỞ then chốt để học sinh tự soi chiếu và trả lời lại cho cô.
+        4. Xưng hô: "cô" - "em". Ngôn từ mực thước sư phạm, tình cảm, tinh tế, truyền niềm tin cho học sinh.
+        """
+
+        conversation_history = "\n".join([f"{m['role']}: {m['content']}" for m in st.session_state.messages[-4:]])
+        full_context = f"{system_prompt}\n\nLỊCH SỬ ĐỐI THOẠI:\n{conversation_history}\n\nHọc sinh vừa nói: {prompt_to_send}\n\nCô Tâm phản hồi khai vấn ngắn gọn, sâu sắc:"
+
+        candidate_models = ["gemini-3.5-flash-lite", "gemini-3.8-flash"]
+        reply = None
+        last_error = ""
+
+        for model_name in candidate_models:
+            for attempt in range(2):
+                try:
+                    response = client.models.generate_content(
+                        model=model_name,
+                        contents=full_context,
+                    )
+                    reply = response.text
+                    break
+                except Exception as e:
+                    last_error = str(e)
+                    if "503" in last_error:
+                        time.sleep(1.5)
+                        continue
+                    break
+            if reply:
+                break
+
+        if not reply:
+            reply = f"Hệ thống máy chủ đang bận xử lý một chút ({last_error}). Em vui lòng thử bấm gửi lại nhé!"
+
+        st.session_state.messages.append({"role": "assistant", "content": reply})
+        st.rerun()
