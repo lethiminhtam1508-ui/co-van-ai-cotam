@@ -98,22 +98,31 @@ with tab1:
 
                     full_context = f"{system_prompt}\n\nHọc sinh chia sẻ: {prompt_to_send}"
                     
-                    # Cơ chế thử lại tự động nếu máy chủ bận (503)
+                    # Danh sách các mô hình dự phòng (ưu tiên flash-lite chịu tải cao)
+                    candidate_models = ["gemini-3.5-flash-lite", "gemini-3.8-flash"]
                     reply = None
-                    for attempt in range(3):
-                        try:
-                            response = client.models.generate_content(
-                                model="gemini-3.8-flash",
-                                contents=full_context,
-                            )
-                            reply = response.text
+                    last_error = ""
+
+                    for model_name in candidate_models:
+                        for attempt in range(2):
+                            try:
+                                response = client.models.generate_content(
+                                    model=model_name,
+                                    contents=full_context,
+                                )
+                                reply = response.text
+                                break
+                            except Exception as e:
+                                last_error = str(e)
+                                if "503" in last_error:
+                                    time.sleep(1.5)
+                                    continue
+                                break
+                        if reply:
                             break
-                        except Exception as e:
-                            if "503" in str(e) and attempt < 2:
-                                time.sleep(2)
-                                continue
-                            reply = f"Đã xảy ra lỗi khi kết nối với AI: {e}"
-                            break
+
+                    if not reply:
+                        reply = f"Hệ thống máy chủ AI đang tạm thời bảo trì kết nối ({last_error}). Em vui lòng thử bấm gửi lại sau ít phút nhé!"
 
                     st.markdown(reply)
                     st.session_state.messages.append({"role": "assistant", "content": reply})
