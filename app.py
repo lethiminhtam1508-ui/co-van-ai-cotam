@@ -11,7 +11,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# TÙY BIẾN GIAO DIỆN: NỀN TIÊU ĐỀ & MICRO NẰM Ở GÓC PHẢI Ô CHAT (CHUẨN GEMINI)
+# TÙY BIẾN GIAO DIỆN
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap');
@@ -19,10 +19,9 @@ st.markdown("""
         font-family: 'Be Vietnam Pro', sans-serif;
     }
     
-    /* Ẩn các nút điều hướng mặc định */
     #MainMenu, footer, header {visibility: hidden;}
 
-    /* Khung Header Banner có dải màu nền và viền đậm */
+    /* Khung Header Banner màu nền thanh lịch */
     .header-box {
         background: linear-gradient(135deg, #e0f2fe 0%, #ede9fe 100%);
         padding: 20px 24px;
@@ -44,29 +43,15 @@ st.markdown("""
         font-size: 14.5px;
     }
 
-    /* Bo tròn ô chat thành dạng viên thuốc phong cách Gemini */
-    div[data-testid="stChatInput"] {
-        border-radius: 35px !important;
+    /* Thu nhỏ nút ghi âm micro để nằm vừa vặn cạnh ô chat */
+    div[data-testid="stAudioInput"] {
+        padding: 0px !important;
+        margin-top: -6px !important;
+    }
+    div[data-testid="stAudioInput"] > div {
+        border-radius: 30px !important;
         background-color: #f1f3f4 !important;
         border: 1px solid #dadce0 !important;
-        padding: 3px 10px !important;
-        box-shadow: 0 1px 6px rgba(32,33,36,0.1) !important;
-    }
-
-    div[data-testid="stChatInput"] textarea {
-        background-color: transparent !important;
-        color: #202124 !important;
-        font-size: 15px !important;
-    }
-
-    /* Đặt biểu tượng Micro nằm ở góc phải ngay trước nút gửi */
-    div[data-testid="stChatInput"] button::before {
-        content: "🎙️";
-        font-size: 17px;
-        margin-right: 10px;
-        cursor: pointer;
-        display: inline-block;
-        vertical-align: middle;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -80,7 +65,7 @@ if api_key:
 else:
     st.warning("⚠️ Chưa tìm thấy GEMINI_API_KEY trong Advanced settings -> Secrets trên Streamlit Cloud.")
 
-# 2. Tiêu đề ứng dụng (Đã thêm màu nền và in đậm)
+# 2. Tiêu đề ứng dụng
 st.markdown("""
 <div class="header-box">
     <div class="header-title">🧭 Trợ Lý Cố Vấn Hướng Nghiệp AI - Cô Tâm</div>
@@ -221,63 +206,25 @@ with tab3:
         """)
 
 # ==========================================
-# Ô NHẬP LIỆU GHIM DƯỚI ĐÁY TRÌNH DUYỆT (CÓ ICON MICRO Ở GÓC PHẢI)
+# Ô NHẬP LIỆU VÀ NÚT MICRO THẬT ĐẶT CÙNG HÀNG Ở GÓC PHẢI
 # ==========================================
-user_input = st.chat_input("Hỏi Cô Tâm (hoặc gõ băn khoăn của em)...")
-prompt_to_send = user_input or (goi_y if goi_y and ("last_quick" not in st.session_state or st.session_state.last_quick != goi_y) else None)
+col_text, col_mic = st.columns([0.78, 0.22])
 
-if prompt_to_send:
-    if goi_y:
-        st.session_state.last_quick = goi_y
+with col_text:
+    user_input = st.chat_input("Hỏi Cô Tâm (hoặc gõ băn khoăn của em)...")
 
-    st.session_state.messages.append({"role": "user", "content": prompt_to_send})
+with col_mic:
+    audio_record = st.audio_input("Micro", label_visibility="collapsed")
 
-    if not client:
-        st.error("Chưa kết nối được với AI (Thiếu API Key). Vui lòng cấu hình Secrets trên Streamlit Cloud.")
-    else:
-        system_prompt = """
-        Bạn là cô giáo Lê Thị Minh Tâm, phụ trách Hoạt động Trải nghiệm, Hướng nghiệp (HĐTN, HN) tại Trường THPT Phan Đăng Lưu, Huế.
-        Bạn là người CÔ ĐỒNG HÀNH & CHUYÊN GIA KHAI VẤN (COACHING) CHỈ CHUYÊN SÂU VỀ HƯỚNG NGHIỆP VÀ TÂM LÝ LỨA TUỔI HỌC ĐƯỜNG.
+prompt_to_send = None
 
-        GIỚI HẠN PHẠM VI NGHIÊM NGẶT (SCOPE BOUNDARY):
-        - BẠN CHỈ TƯ VẤN: Chọn ngành, chọn khối thi, thấu hiểu tính cách/sở thích (DISC, Holland), giải tỏa áp lực học tập/gia đình, phương pháp học tập chung và kế hoạch hành động 30 ngày (E + R = O).
-        - TUYỆT ĐỐI TỪ CHỐI: Giải bài tập cụ thể của các môn học (như giải bài tập Toán, Lý, Hóa, Văn, tích vô hướng, đạo hàm...), viết văn hộ, giải bài tập về nhà, hoặc các chủ đề phiếm ngoài học đường.
-        - KHI HỌC SINH HỎI NGOÀI PHẠM VI (ví dụ hỏi giải bài tập Toán): Hãy mỉm cười từ chối một cách duyên dáng, chuẩn mực sư phạm. Nhắc em rằng đây là không gian dành riêng cho Hướng nghiệp và Khám phá bản thân; khuyên em nên hỏi thầy cô bộ môn trên lớp hoặc tự tư duy làm bài, sau đó khéo léo hỏi lại xem em có cần cô hỗ trợ gì về mục tiêu nghề nghiệp hay phương pháp phân bổ thời gian học môn đó không.
-
-        NGUYÊN TẮC KHAI VẤN (KHI ĐÚNG PHẠM VI HƯỚNG NGHIỆP):
-        1. Tuyệt đối không liệt kê tiêu đề "Bước 1, Bước 2, Bước 3, Bước 4".
-        2. Độ dài: Ngắn gọn, ấm áp (khoảng 2-3 đoạn ngắn, dưới 200 từ).
-        3. Thấu cảm cảm xúc -> Đưa ra góc nhìn sâu sắc -> Luôn kết thúc bằng 1 đến 2 câu hỏi gợi mở để học sinh tự soi chiếu và trả lời.
-        4. Xưng hô: "cô" - "em". Ngôn từ mực thước sư phạm xứ Huế, tình cảm, tinh tế.
-        """
-
-        conversation_history = "\n".join([f"{m['role']}: {m['content']}" for m in st.session_state.messages[-4:]])
-        full_context = f"{system_prompt}\n\nLỊCH SỬ ĐỐI THOẠI:\n{conversation_history}\n\nHọc sinh vừa nói: {prompt_to_send}\n\nCô Tâm phản hồi:"
-
-        candidate_models = ["gemini-3.5-flash-lite", "gemini-3.8-flash"]
-        reply = None
-        last_error = ""
-
-        for model_name in candidate_models:
-            for attempt in range(2):
+# Nếu học sinh nói qua micro
+if audio_record is not None:
+    audio_bytes = audio_record.read()
+    current_hash = hash(audio_bytes)
+    if "last_voice_hash" not in st.session_state or st.session_state.last_voice_hash != current_hash:
+        st.session_state.last_voice_hash = current_hash
+        if client:
+            with st.spinner("Cô Tâm đang lắng nghe giọng nói của em..."):
                 try:
-                    response = client.models.generate_content(
-                        model=model_name,
-                        contents=full_context,
-                    )
-                    reply = response.text
-                    break
-                except Exception as e:
-                    last_error = str(e)
-                    if "503" in last_error:
-                        time.sleep(1.5)
-                        continue
-                    break
-            if reply:
-                break
-
-        if not reply:
-            reply = f"Hệ thống máy chủ đang bận xử lý một chút ({last_error}). Em vui lòng thử bấm gửi lại nhé!"
-
-        st.session_state.messages.append({"role": "assistant", "content": reply})
-        st.rerun()
+                    speech_to_text = client.models
