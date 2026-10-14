@@ -1,3 +1,6 @@
+# 2. Giao dien tieu de
+st.title("🧭 Trợ Lý Cố Vấn Hướng Nghiệp AI - Cô Tâm")
+st.caption("Trường THPT Phan Đăng Lưu • Đồng hành khai vấn & kiến tạo tương lai cùng học sinh")
 import streamlit as st
 import os
 import time
