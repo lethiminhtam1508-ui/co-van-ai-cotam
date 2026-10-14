@@ -1,6 +1,6 @@
-import streamlit as st
 import os
 import time
+import streamlit as st
 from google import genai
 from google.genai import types
 
@@ -11,6 +11,66 @@ st.set_page_config(
     layout="wide"
 )
 
+# TÙY BIẾN GIAO DIỆN: NỀN TIÊU ĐỀ & MICRO NẰM Ở GÓC PHẢI Ô CHAT (CHUẨN GEMINI)
+st.markdown("""
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap');
+    html, body, [class*="css"] {
+        font-family: 'Be Vietnam Pro', sans-serif;
+    }
+    
+    /* Ẩn các nút điều hướng mặc định */
+    #MainMenu, footer, header {visibility: hidden;}
+
+    /* Khung Header Banner có dải màu nền và viền đậm */
+    .header-box {
+        background: linear-gradient(135deg, #e0f2fe 0%, #ede9fe 100%);
+        padding: 20px 24px;
+        border-radius: 14px;
+        border-left: 7px solid #1d4ed8;
+        margin-bottom: 22px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+    .header-title {
+        color: #1e3a8a;
+        margin: 0 0 6px 0;
+        font-weight: 900;
+        font-size: 25px;
+    }
+    .header-sub {
+        color: #334155;
+        margin: 0;
+        font-weight: 700;
+        font-size: 14.5px;
+    }
+
+    /* Bo tròn ô chat thành dạng viên thuốc phong cách Gemini */
+    div[data-testid="stChatInput"] {
+        border-radius: 35px !important;
+        background-color: #f1f3f4 !important;
+        border: 1px solid #dadce0 !important;
+        padding: 3px 10px !important;
+        box-shadow: 0 1px 6px rgba(32,33,36,0.1) !important;
+    }
+
+    div[data-testid="stChatInput"] textarea {
+        background-color: transparent !important;
+        color: #202124 !important;
+        font-size: 15px !important;
+    }
+
+    /* Đặt biểu tượng Micro nằm ở góc phải ngay trước nút gửi */
+    div[data-testid="stChatInput"] button::before {
+        content: "🎙️";
+        font-size: 17px;
+        margin-right: 10px;
+        cursor: pointer;
+        display: inline-block;
+        vertical-align: middle;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # 1. Khởi tạo kết nối Gemini API
 api_key = st.secrets.get("GEMINI_API_KEY", os.environ.get("GEMINI_API_KEY", ""))
 
@@ -20,9 +80,13 @@ if api_key:
 else:
     st.warning("⚠️ Chưa tìm thấy GEMINI_API_KEY trong Advanced settings -> Secrets trên Streamlit Cloud.")
 
-# 2. Tiêu đề ứng dụng
-st.title("🧭 Trợ Lý Cố Vấn Hướng Nghiệp AI - Cô Tâm")
-st.caption("Trường THPT Phan Đăng Lưu | Đồng hành khai vấn & kiến tạo tương lai cùng học sinh")
+# 2. Tiêu đề ứng dụng (Đã thêm màu nền và in đậm)
+st.markdown("""
+<div class="header-box">
+    <div class="header-title">🧭 Trợ Lý Cố Vấn Hướng Nghiệp AI - Cô Tâm</div>
+    <div class="header-sub">Trường THPT Phan Đăng Lưu | Đồng hành khai vấn & kiến tạo tương lai cùng học sinh</div>
+</div>
+""", unsafe_allow_html=True)
 
 # Khởi tạo lịch sử trò chuyện
 if "messages" not in st.session_state:
@@ -38,7 +102,11 @@ if "messages" not in st.session_state:
     ]
 
 # 3. Phân chia các Tab chức năng
-tab1, tab2, tab3 = st.tabs(["💬 Khung Cố Vấn Khai Vấn", "📊 Trắc Nghiệm Tố Chất (DISC & Holland)", "📜 Sổ Tay & Lộ Trình 30 Ngày"])
+tab1, tab2, tab3 = st.tabs([
+    "💬 Khung Cố Vấn Khai Vấn", 
+    "📊 Trắc Nghiệm Tố Chất (DISC & Holland)", 
+    "📜 Sổ Tay & Lộ Trình 30 Ngày"
+])
 
 goi_y = ""
 
@@ -153,9 +221,9 @@ with tab3:
         """)
 
 # ==========================================
-# Ô NHẬP LIỆU GHIM DƯỚI ĐÁY TRÌNH DUYỆT
+# Ô NHẬP LIỆU GHIM DƯỚI ĐÁY TRÌNH DUYỆT (CÓ ICON MICRO Ở GÓC PHẢI)
 # ==========================================
-user_input = st.chat_input("Nhập băn khoăn của em về chọn ngành, chọn khối thi...")
+user_input = st.chat_input("Hỏi Cô Tâm (hoặc gõ băn khoăn của em)...")
 prompt_to_send = user_input or (goi_y if goi_y and ("last_quick" not in st.session_state or st.session_state.last_quick != goi_y) else None)
 
 if prompt_to_send:
