@@ -1,125 +1,150 @@
-import streamlit as st
 import os
 import time
+import streamlit as st
 from google import genai
 
-# Cấu hình giao diện Streamlit
+# Cau hinh trang
 st.set_page_config(
-    page_title="Cố Vấn Hướng Nghiệp AI - Cô Tâm",
+    page_title="Co Van Huong Nghiep AI - Co Tam",
     page_icon="🧭",
     layout="wide"
 )
 
-# TÙY BIẾN GIAO DIỆN (NỀN VÀ FONT CHỮ SƯ PHẠM)
-custom_css = """
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Merriweather:wght@700;900&display=swap');
-
-    html, body, [class*="css"] {
-        font-family: 'Be Vietnam Pro', sans-serif;
-    }
-
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    .stDeployButton {display:none;}
-    footer:after {display:none;}
-
-    .header-box {
-        background: linear-gradient(135deg, #e0f2fe 0%, #ede9fe 50%, #f8fafc 100%);
-        padding: 22px 26px;
-        border-radius: 16px;
-        border: 1px solid #bfdbfe;
-        border-left: 8px solid #1d4ed8;
-        box-shadow: 0 6px 18px rgba(30, 64, 175, 0.08);
-        margin-bottom: 22px;
-    }
-
-    .main-title {
-        font-family: 'Merriweather', serif;
-        font-size: 26px;
-        font-weight: 900;
-        color: #1e3a8a;
-        margin: 0;
-        padding-bottom: 6px;
-    }
-
-    .sub-title {
-        color: #1e293b;
-        font-size: 14.5px;
-        font-weight: 700;
-        margin-top: 4px;
-    }
-
-    .section-title {
-        font-family: 'Be Vietnam Pro', sans-serif;
-        color: #0f172a;
-        font-size: 19px;
-        font-weight: 800;
-        margin-top: 12px;
-        margin-bottom: 6px;
-    }
-
-    .section-desc {
-        color: #334155;
-        font-size: 14.5px;
-        font-weight: 600;
-        margin-bottom: 12px;
-    }
-
-    div.stButton > button {
-        background-color: #ffffff;
-        color: #1e40af;
-        border: 1.5px solid #93c5fd;
-        border-radius: 20px;
-        padding: 6px 15px;
-        font-size: 13.5px;
-        font-weight: 700;
-        transition: all 0.2s ease-in-out;
-    }
-
-    div.stButton > button:hover {
-        background-color: #eff6ff;
-        border-color: #2563eb;
-        color: #1d4ed8;
-    }
-</style>
-"""
-st.markdown(custom_css, unsafe_allow_html=True)
-
-# 1. Khởi tạo kết nối Gemini API
+# 1. Kiem tra va khoi tao Gemini API
 api_key = st.secrets.get("GEMINI_API_KEY", os.environ.get("GEMINI_API_KEY", ""))
+client = genai.Client(api_key=api_key) if api_key else None
 
-client = None
-if api_key:
-    client = genai.Client(api_key=api_key)
-else:
-    st.warning("⚠️ Chưa tìm thấy GEMINI_API_KEY trong Advanced settings -> Secrets trên Streamlit Cloud.")
+if not client:
+    st.warning("⚠️ Chua tim thay GEMINI_API_KEY trong Streamlit Secrets.")
 
-# 2. Tiêu đề ứng dụng
-header_html = """
-<div class="header-box">
-    <h1 class="main-title">🧭 Trợ Lý Cố Vấn Hướng Nghiệp AI - Cô Tâm</h1>
-    <div class="sub-title">Trường THPT Phan Đăng Lưu • Đồng hành khai vấn & kiến tạo tương lai cùng học sinh</div>
-</div>
-"""
-st.markdown(header_html, unsafe_allow_html=True)
+# 2. Giao dien tieu de
+st.title("🧭 Trợ Lý Cố Vấn Hướng Nghiệp AI - Cô Tâm")
+st.caption("Trường THPT Phan Đăng Lưu • Đồng hành khai vấn & kiến tạo tương lai cùng học sinh")
 
-# Khởi tạo lịch sử trò chuyện
+# 3. Khoi tao lich su hoi thoai
 if "messages" not in st.session_state:
     st.session_state.messages = [
         {
             "role": "assistant",
-            "content": "Chào em! Cô là cô giáo Minh Tâm, phụ trách Hoạt động Trải nghiệm, Hướng nghiệp tại Trường THPT Phan Đăng Lưu.\n\nCô rất vui được đồng hành cùng em. Thay vì vội vã chọn ngay một nghề, cô trò mình sẽ từng bước bóc tách những trăn trở để tìm ra con đường tự tin nhất.\n\nEm đang gặp khó khăn hay băn khoăn điều gì về chọn khối thi, ngành nghề hay thấu hiểu bản thân?"
+            "content": (
+                "Chào em! Cô là cô giáo Minh Tâm, phụ trách Hoạt động Trải nghiệm, Hướng nghiệp tại Trường THPT Phan Đăng Lưu.\n\n"
+                "Cô rất vui được đồng hành cùng em. Thay vì vội vã chọn ngay một nghề, cô trò mình sẽ từng bước bóc tách những trăn trở để tìm ra con đường tự tin nhất.\n\n"
+                "Em đang gặp khó khăn hay băn khoăn điều gì về chọn khối thi, ngành nghề hay thấu hiểu bản thân?"
+            )
         }
     ]
 
-# 3. Phân chia các Tab chức năng
-tab1, tab2, tab3 = st.tabs(["💬 Khung Cố Vấn Khai Vấn", "📊 Trắc Nghiệm Tố Chất (DISC & Holland)", "📜 Sổ Tay & Lộ Trình 30 Ngày"])
+# 4. Cac Tab chuc nang
+tab1, tab2, tab3 = st.tabs([
+    "💬 Khung Cố Vấn Khai Vấn", 
+    "📊 Trắc Nghiệm Tố Chất (DISC & Holland)", 
+    "📜 Sổ Tay & Lộ Trình 30 Ngày"
+])
 
 # ==========================================
-# TAB 1: KHUNG CỐ VẤN KHAI VẤN (AI CHATBOT)
+# TAB 1: KHUNG CO VAN KHAI VAN
 # ==========================================
 with tab1:
-    st.markdown('<div class="section-title">💡 Trò chuyện trực tiếp cùng Cô Tâm</div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-desc">Em đang băn khoăn về chọn khối thi, chọn ngành, mâu thuẫn giữa sở thích và năng lực, hay áp lực từ gia
+    st.subheader("💡 Trò chuyện trực tiếp cùng Cô Tâm")
+    st.write("Em đang băn khoăn về chọn khối thi, chọn ngành, mâu thuẫn giữa sở thích và năng lực, hay áp lực từ gia đình? Hãy chia sẻ cùng cô nhé!")
+
+    st.markdown("**Gợi ý tình huống nhanh:**")
+    c1, c2, c3 = st.columns(3)
+    quick_text = None
+    if c1.button("IT & Tố chất Hướng nội (S)"):
+        quick_text = "Em muốn học ngành Công nghệ Thông tin nhưng tính em rất hướng nội và ngại giao tiếp, kết quả trắc nghiệm ra nhóm Trầm tĩnh (S). Liệu em có theo được không cô?"
+    if c2.button("Sư phạm hay Kinh doanh?"):
+        quick_text = "Gia đình muốn em thi Sư phạm cho ổn định, nhưng em lại thích kinh doanh khởi nghiệp. Em đang rất khó xử không biết chọn thế nào ạ?"
+    if c3.button("Học lực khá, chưa rõ đam mê?"):
+        quick_text = "Em đang học lớp 11, học lực ở mức khá nhưng chưa thực sự thấy mình nổi trội môn nào hay đam mê ngành gì cụ thể. Cô giúp em với ạ!"
+
+    # Hien thi lich su chat
+    for m in st.session_state.messages:
+        with st.chat_message(m["role"]):
+            st.markdown(m["content"])
+
+    # O nhap tin nhan
+    user_msg = st.chat_input("Nhập băn khoăn của em về chọn ngành, chọn khối thi...")
+    prompt_to_run = user_msg or quick_text
+
+    if prompt_to_run:
+        st.session_state.messages.append({"role": "user", "content": prompt_to_run})
+        with st.chat_message("user"):
+            st.markdown(prompt_to_run)
+
+        with st.chat_message("assistant"):
+            if not client:
+                st.error("Chưa kết nối được với AI (Thiếu API Key).")
+            else:
+                with st.spinner("Cô Tâm đang suy ngẫm câu trả lời cho em..."):
+                    system_prompt = (
+                        "Bạn là cô giáo Lê Thị Minh Tâm, phụ trách Hoạt động Trải nghiệm, Hướng nghiệp (HĐTN, HN) tại Trường THPT Phan Đăng Lưu, Huế. "
+                        "Bạn là người CÔ ĐỒNG HÀNH & CHUYÊN GIA KHAI VẤN (COACHING) CHỈ CHUYÊN SÂU VỀ HƯỚNG NGHIỆP VÀ TÂM LÝ LỨA TUỔI HỌC ĐƯỜNG.\n\n"
+                        "GIỚI HẠN PHẠM VI NGHIÊM NGẶT:\n"
+                        "- BẠN CHỈ TƯ VẤN: Chọn ngành, chọn khối thi, thấu hiểu tính cách/sở thích (DISC, Holland), giải tỏa áp lực học tập/gia đình, phương pháp học tập chung và kế hoạch hành động 30 ngày (E + R = O).\n"
+                        "- TUYỆT ĐỐI TỪ CHỐI: Giải bài tập cụ thể của các môn học (như giải bài tập Toán, Lý, Hóa, Văn, tích vô hướng, đạo hàm...), viết văn hộ, giải bài tập về nhà, hoặc các chủ đề phiếm ngoài học đường.\n"
+                        "- KHI HỌC SINH HỎI NGOÀI PHẠM VI: Hãy mỉm cười từ chối một cách duyên dáng, chuẩn mực sư phạm. Nhắc em rằng đây là không gian dành riêng cho Hướng nghiệp và Khám phá bản thân; khuyên em nên trao đổi với thầy cô bộ môn, sau đó khéo léo hỏi lại xem em có cần cô hỗ trợ gì về mục tiêu nghề nghiệp hay quản lý thời gian không.\n\n"
+                        "NGUYÊN TẮC KHAI VẤN:\n"
+                        "1. Tuyệt đối không liệt kê tiêu đề Bước 1, Bước 2, Bước 3, Bước 4.\n"
+                        "2. Độ dài: Ngắn gọn, ấm áp (khoảng 2-3 đoạn ngắn, dưới 200 từ).\n"
+                        "3. Thấu cảm cảm xúc -> Đưa ra góc nhìn sâu sắc -> Luôn kết thúc bằng 1 đến 2 câu hỏi gợi mở để học sinh tự soi chiếu và trả lời.\n"
+                        "4. Xưng hô: cô - em. Ngôn từ mực thước sư phạm xứ Huế, tình cảm, tinh tế."
+                    )
+
+                    recent_msgs = st.session_state.messages[-4:]
+                    history_str = "\n".join([f"{item['role']}: {item['content']}" for item in recent_msgs])
+                    full_context = f"{system_prompt}\n\nLỊCH SỬ ĐỐI THOẠI:\n{history_str}\n\nHọc sinh vừa nói: {prompt_to_run}\n\nCô Tâm phản hồi:"
+
+                    answer = None
+                    last_err = ""
+                    for m_name in ["gemini-3.5-flash-lite", "gemini-3.8-flash"]:
+                        for attempt in range(2):
+                            try:
+                                resp = client.models.generate_content(
+                                    model=m_name,
+                                    contents=full_context,
+                                )
+                                answer = resp.text
+                                break
+                            except Exception as e:
+                                last_err = str(e)
+                                if "503" in last_err:
+                                    time.sleep(1.5)
+                                    continue
+                                break
+                        if answer:
+                            break
+
+                    if not answer:
+                        answer = f"Hệ thống máy chủ đang bận xử lý ({last_err}). Em vui lòng thử bấm gửi lại nhé!"
+
+                    st.markdown(answer)
+                    st.session_state.messages.append({"role": "assistant", "content": answer})
+
+# ==========================================
+# TAB 2: TRAC NGHIEM TO CHAT
+# ==========================================
+with tab2:
+    st.subheader("🧩 Khám phá Tố chất & Phong cách Làm việc")
+    st.write("Trả lời 4 câu hỏi trắc nghiệm tình huống dưới đây để nhận diện bức tranh tổng quan về bản thân:")
+
+    with st.form("quiz_form"):
+        q1 = st.radio(
+            "1. Khi tham gia một hoạt động trải nghiệm nhóm tại trường, em thường chủ động đảm nhận vai trò nào?",
+            [
+                "A. Trưởng nhóm, phân công nhiệm vụ và thúc đẩy tiến độ hoàn thành (Nhóm D - Thống trị / Quản lý).",
+                "B. Người dẫn dắt không khí, thuyết trình và tạo sự gắn kết, vui vẻ (Nhóm I - Ảnh hưởng / Xã hội).",
+                "C. Thành viên hỗ trợ chu đáo, luôn lắng nghe và giữ hòa khí cho cả nhóm (Nhóm S - Kiên định / Hòa nhã).",
+                "D. Người lập kế hoạch chi tiết, kiểm tra số liệu và đảm bảo không có sai sót (Nhóm C - Tuân thủ / Kỹ thuật)."
+            ]
+        )
+
+        q2 = st.radio(
+            "2. Trong giờ tự học hoặc thời gian rảnh, hoạt động nào khiến em cảm thấy say mê nhất?",
+            [
+                "A. Lắp ráp, sửa chữa đồ dùng, làm thí nghiệm hoặc vận động thể chất (Holland R - Thực tế).",
+                "B. Đọc tài liệu, tìm hiểu nguyên lý sâu xa của các hiện tượng, nghiên cứu logic (Holland I - Nghiên cứu).",
+                "C. Viết lách, vẽ tranh, thiết kế, dựng video, sáng tạo nội dung (Holland A - Nghệ thuật).",
+                "D. Trò chuyện tâm sự, giúp đỡ bạn bè giải tỏa khúc mắc, lắng nghe tâm tư (Holland S - Xã hội)."
+            ]
+        )
