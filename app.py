@@ -22,7 +22,7 @@ else:
 
 # 2. Tiêu đề ứng dụng
 st.title("🧭 Trợ Lý Cố Vấn Hướng Nghiệp AI - Cô Tâm")
-st.caption("Đồng hành cùng học sinh THPT Phan Đăng Lưu trên Hành trình Kiến tạo Tương lai | Phương pháp Khai vấn Sư phạm")
+st.caption("Trường THPT Phan Đăng Lưu | Đồng hành khai vấn & kiến tạo tương lai cùng học sinh")
 
 # 3. Phân chia các Tab chức năng
 tab1, tab2, tab3 = st.tabs(["💬 Khung Cố Vấn Khai Vấn", "📊 Trắc Nghiệm Tố Chất (DISC & Holland)", "📜 Sổ Tay & Lộ Trình 30 Ngày"])
@@ -35,15 +35,15 @@ with tab1:
     st.write("Em đang băn khoăn về chọn khối thi, chọn ngành, mâu thuẫn giữa sở thích và năng lực, hay áp lực từ gia đình? Hãy chia sẻ với cô nhé!")
 
     # Gợi ý câu hỏi nhanh
-    st.markdown("**Gợi ý câu hỏi nhanh:**")
+    st.markdown("**Gợi ý tình huống nhanh:**")
     col_a, col_b, col_c = st.columns(3)
     goi_y = ""
-    if col_a.button("Em muốn làm IT nhưng tính lại hướng nội, sợ giao tiếp?"):
-        goi_y = "Em muốn học ngành Công nghệ Thông tin nhưng tính em rất hướng nội và ngại giao tiếp, kết quả trắc nghiệm ra nhóm Trầm tĩnh (S). Liệu em có làm được không cô?"
-    if col_b.button("Bố mẹ muốn em thi Sư phạm nhưng em thích Kinh doanh?"):
-        goi_y = "Gia đình muốn em thi khối ngành Sư phạm cho ổn định, nhưng em lại đam mê kinh doanh và khởi nghiệp. Em đang rất bối rối không biết nên chọn thế nào?"
-    if col_c.button("Em học lực khá, chưa biết mình thực sự thích ngành gì?"):
-        goi_y = "Em đang học lớp 11, học lực ở mức khá nhưng chưa thực sự thấy mình nổi trội môn nào hay đam mê ngành gì cụ thể. Cô giúp em định hướng với ạ!"
+    if col_a.button("Em muốn học IT nhưng tính hướng nội, sợ giao tiếp?"):
+        goi_y = "Em muốn học ngành Công nghệ Thông tin nhưng tính em rất hướng nội và ngại giao tiếp, kết quả trắc nghiệm ra nhóm Trầm tĩnh (S). Liệu em có theo được không cô?"
+    if col_b.button("Bố mẹ muốn em thi Sư phạm, em lại thích Kinh doanh?"):
+        goi_y = "Gia đình muốn em thi Sư phạm cho ổn định, nhưng em lại thích kinh doanh khởi nghiệp. Em đang rất khó xử không biết chọn thế nào ạ?"
+    if col_c.button("Em học lực khá, chưa biết mình thích ngành gì?"):
+        goi_y = "Em đang học lớp 11, học lực ở mức khá nhưng chưa thực sự thấy mình nổi trội môn nào hay đam mê ngành gì cụ thể. Cô giúp em với ạ!"
 
     # Lưu lịch sử chat
     if "messages" not in st.session_state:
@@ -52,9 +52,8 @@ with tab1:
                 "role": "assistant",
                 "content": (
                     "Chào em! Cô là cô giáo Minh Tâm, phụ trách Hoạt động Trải nghiệm, Hướng nghiệp tại Trường THPT Phan Đăng Lưu.\n\n"
-                    "Cô luôn tin rằng mỗi học sinh đều sở hữu những thế mạnh và tố chất riêng biệt. "
-                    "Dù em đang phân vân chọn khối thi, chọn ngành hay gặp khó khăn trong việc thấu hiểu bản thân, cô luôn sẵn sàng lắng nghe.\n\n"
-                    "Em đang trăn trở điều gì nhất lúc này?"
+                    "Cô rất vui được đồng hành cùng em. Thay vì vội vã chọn ngay một nghề, cô trò mình sẽ từng bước bóc tách những trăn trở để tìm ra con đường tự tin nhất.\n\n"
+                    "Em đang gặp khó khăn hay băn khoăn điều gì nhất lúc này?"
                 )
             }
         ]
@@ -65,7 +64,7 @@ with tab1:
             st.markdown(msg["content"])
 
     # Xử lý khi có câu hỏi mới
-    user_input = st.chat_input("Nhập băn khoăn của em về ngành nghề, chọn khối, định hướng tương lai...")
+    user_input = st.chat_input("Nhập băn khoăn của em về chọn ngành, chọn khối thi...")
     prompt_to_send = user_input or (goi_y if goi_y and ("last_quick" not in st.session_state or st.session_state.last_quick != goi_y) else None)
 
     if prompt_to_send:
@@ -80,25 +79,25 @@ with tab1:
             if not client:
                 st.error("Chưa kết nối được với AI (Thiếu API Key). Vui lòng cấu hình Secrets trên Streamlit Cloud.")
             else:
-                with st.spinner("Cô Tâm đang suy ngẫm câu trả lời cho em..."):
+                with st.spinner("Cô Tâm đang lắng nghe và suy ngẫm..."):
                     system_prompt = """
                     Bạn là cô giáo Lê Thị Minh Tâm, phụ trách Hoạt động Trải nghiệm, Hướng nghiệp (HĐTN, HN) tại Trường THPT Phan Đăng Lưu, Huế.
-                    Bạn đóng vai một chuyên gia khai vấn và người cô đồng hành tận tâm, ấm áp, sâu sắc và khoa học.
+                    Bạn đóng vai một người CÔ ĐỒNG HÀNH & CHUYÊN GIA KHAI VẤN (COACHING) sâu sắc, chân thành, thấu cảm.
 
-                    QUY TRÌNH KHAI VẤN BẮT BUỘC (Tuân thủ đúng 4 bước trong mọi câu trả lời tư vấn):
-                    - Bước 1: Thấu cảm & Giải tỏa tâm lý: Thấu hiểu nỗi lo lắng, bối rối của học sinh cấp 3 trước ngưỡng cửa chọn trường/chọn nghề. Khẳng định cảm xúc đó là hoàn toàn tự nhiên.
-                    - Bước 2: Bóc tách nghịch lý tố chất (Giao thoa DISC & Holland): Phân tích xem mâu thuẫn của học sinh nằm ở đâu (ví dụ: nhóm S thích công nghệ, nhóm A muốn theo kinh tế...).
-                    - Bước 3: Đề xuất Kỹ năng bù trừ (Compensatory Skills): Chỉ ra rằng tố chất không phải là định mệnh; hoàn toàn có thể rèn luyện các kỹ năng bổ trợ để khắc phục điểm yếu và tối ưu thế mạnh.
-                    - Bước 4: Lộ trình hành động vi mô 30 ngày (Công thức E + R = O):
-                      + Giải thích ngắn gọn: Event (Sự kiện) + Response (Phản ứng của em) = Outcome (Kết quả).
-                      + Đưa ra 3-4 hành động cụ thể, làm được ngay trong 30 ngày tới.
-
-                    Phong cách giao tiếp: Xưng "cô" và gọi "em". Giọng văn sư phạm mực thước, gần gũi, khích lệ và giàu năng lượng tích cực.
+                    NGUYÊN TẮC GIAO TIẾP VÀ TRẢ LỜI:
+                    1. TUYỆT ĐỐI KHÔNG liệt kê máy móc tiêu đề các bước "Bước 1, Bước 2, Bước 3, Bước 4" trong một câu trả lời.
+                    2. ĐỘ DÀI: Ngắn gọn, súc tích (khoảng 3 - 4 đoạn ngắn, dưới 250 từ), đi thẳng vào trọng tâm tâm lý của học sinh.
+                    3. PHƯƠNG PHÁP KHAI VẤN 2 CHIỀU:
+                       - Đoạn 1: Thấu cảm sâu sắc, giải tỏa áp lực (khẳng định việc hoang mang/chưa rõ ràng là quy luật tự nhiên của lứa tuổi học trò).
+                       - Đoạn 2: Mở ra một góc nhìn mới sâu sắc (dưới lăng kính tố chất, sự kiên trì, hoặc công thức E + R = O: sự kiện không đổi nhưng phản ứng sẽ tạo ra kết quả).
+                       - Đoạn 3: ĐẶT 1 ĐẾN 2 CÂU HỎI GỢI MỞ then chốt để học sinh tự soi chiếu và trả lời lại cho cô.
+                    4. Xưng hô: "cô" - "em". Ngôn từ mực thước sư phạm, tình cảm, tinh tế, truyền niềm tin cho học sinh.
                     """
 
-                    full_context = f"{system_prompt}\n\nHọc sinh chia sẻ: {prompt_to_send}"
+                    # Ghép toàn bộ ngữ cảnh hội thoại để AI nhớ lời học sinh nói trước đó
+                    conversation_history = "\n".join([f"{m['role']}: {m['content']}" for m in st.session_state.messages[-4:]])
+                    full_context = f"{system_prompt}\n\nLỊCH SỬ ĐỐI THOẠI:\n{conversation_history}\n\nHọc sinh vừa nói: {prompt_to_send}\n\nCô Tâm phản hồi khai vấn ngắn gọn, sâu sắc:"
                     
-                    # Danh sách các mô hình dự phòng (ưu tiên flash-lite chịu tải cao)
                     candidate_models = ["gemini-3.5-flash-lite", "gemini-3.8-flash"]
                     reply = None
                     last_error = ""
@@ -122,7 +121,7 @@ with tab1:
                             break
 
                     if not reply:
-                        reply = f"Hệ thống máy chủ AI đang tạm thời bảo trì kết nối ({last_error}). Em vui lòng thử bấm gửi lại sau ít phút nhé!"
+                        reply = f"Hệ thống máy chủ đang bận xử lý một chút ({last_error}). Em vui lòng thử bấm gửi lại nhé!"
 
                     st.markdown(reply)
                     st.session_state.messages.append({"role": "assistant", "content": reply})
