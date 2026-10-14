@@ -98,7 +98,7 @@ with tab1:
                     full_context = f"{system_prompt}\n\nHọc sinh chia sẻ: {prompt_to_send}"
                     try:
                         response = client.models.generate_content(
-                            model="gemini-2.5-flash",
+                            model="gemini-3.8-flash",
                             contents=full_context,
                         )
                         reply = response.text
