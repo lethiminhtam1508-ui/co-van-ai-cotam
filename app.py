@@ -253,7 +253,7 @@ if prompt_to_send:
         conversation_history = "\n".join([f"{m['role']}: {m['content']}" for m in st.session_state.messages[-4:]])
         full_context = f"{system_prompt}\n\nLỊCH SỬ ĐỐI THOẠI:\n{conversation_history}\n\nHọc sinh vừa nói: {prompt_to_send}\n\nCô Tâm phản hồi:"
 
-        candidate_models = ["gemini-2.5-flash", "gemini-2.5-flash-lite"]
+        candidate_models = ["gemini-3.5-flash-lite", "gemini-3.8-flash"]
         reply = None
         last_error = ""
 
